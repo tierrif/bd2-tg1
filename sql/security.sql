@@ -1,0 +1,3 @@
+CREATE LOGIN [server] WITH PASSWORD = 'server'
+CREATE USER [server] FROM LOGIN [server]
+GRANT INSERT, UPDATE, DELETE, SELECT ON SCHEMA::dbo TO [server]
