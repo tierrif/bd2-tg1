@@ -1,18 +1,18 @@
---USE tg1
---GO
+USE tg1
+GO
 
 --EXEC sp_msforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all"
 --EXEC sp_msforeachtable "DROP TABLE ?"
 
 CREATE TABLE Country (
 	countryId INT PRIMARY KEY IDENTITY,
-	[name] VARCHAR(64) NOT NULL
+	[name] NVARCHAR(64) NOT NULL
 )
 
 CREATE TABLE [State] (
 	stateId INT PRIMARY KEY IDENTITY,
 	countryId INT NOT NULL,
-	[name] VARCHAR(64) NOT NULL,
+	[name] NVARCHAR(64) NOT NULL,
 
 	FOREIGN KEY (countryId) REFERENCES Country(countryId)
 )
@@ -20,25 +20,25 @@ CREATE TABLE [State] (
 CREATE TABLE City (
 	cityId INT PRIMARY KEY IDENTITY,
 	countryId INT NOT NULL,
-	[name] VARCHAR(64) NOT NULL,
+	[name] NVARCHAR(64) NOT NULL,
 
 	FOREIGN KEY (countryId) REFERENCES Country(countryId)
 )
 
 CREATE TABLE SiteUser (
 	siteUserId BIGINT PRIMARY KEY IDENTITY,
-	[name] VARCHAR(64) NOT NULL,
-	profilePictureUrl VARCHAR(256),
+	[name] NVARCHAR(64) NOT NULL,
+	profilePictureUrl NVARCHAR(256),
 	joinDate DATETIME NOT NULL DEFAULT GETDATE(),
 	fiscalId BIGINT NOT NULL DEFAULT 999999990,
 	identityVerified BIT NOT NULL DEFAULT 0,
-	mobile VARCHAR(32) NOT NULL,
-	email VARCHAR(64) NOT NULL,
-	salt VARCHAR(128) NOT NULL,
-	[password] VARCHAR(512) NOT NULL,
-	locationAddrLine1 VARCHAR(64) NOT NULL,
-	locationAddrLine2 VARCHAR(64),
-	locationPostalCode VARCHAR(16) NOT NULL,
+	mobile NVARCHAR(32) NOT NULL,
+	email NVARCHAR(64) NOT NULL,
+	salt NVARCHAR(128) NOT NULL,
+	[password] NVARCHAR(512) NOT NULL,
+	locationAddrLine1 NVARCHAR(64) NOT NULL,
+	locationAddrLine2 NVARCHAR(64),
+	locationPostalCode NVARCHAR(16) NOT NULL,
 	cityId INT NOT NULL,
 	stateId INT,
 	isHost BIT NOT NULL DEFAULT 0,
@@ -51,12 +51,12 @@ CREATE TABLE SiteUser (
 CREATE TABLE Housing (
 	housingId BIGINT PRIMARY KEY IDENTITY,
 	hostUserId BIGINT NOT NULL,
-	[name] VARCHAR(128) NOT NULL,
+	[name] NVARCHAR(128) NOT NULL,
 	defaultCost MONEY NOT NULL,
 	ratingAvg FLOAT NOT NULL DEFAULT -1,
-	locationAddrLine1 VARCHAR(64) NOT NULL,
-	locationAddrLine2 VARCHAR(64),
-	locationPostalCode VARCHAR(16) NOT NULL,
+	locationAddrLine1 NVARCHAR(64) NOT NULL,
+	locationAddrLine2 NVARCHAR(64),
+	locationPostalCode NVARCHAR(16) NOT NULL,
 	cityId INT NOT NULL,
 	stateId INT,
 	FOREIGN KEY (hostUserId) REFERENCES SiteUser(siteUserId),
@@ -67,7 +67,7 @@ CREATE TABLE Housing (
 CREATE TABLE Room (
 	roomId BIGINT PRIMARY KEY IDENTITY,
 	housingId BIGINT NOT NULL,
-	[name] VARCHAR(32) NOT NULL,
+	[name] NVARCHAR(32) NOT NULL,
 	maxGuestCount TINYINT NOT NULL,
 	FOREIGN KEY (housingId) REFERENCES Housing(housingId)
 )
@@ -97,28 +97,28 @@ CREATE TABLE DateIntervalCost (
 CREATE TABLE HousingPicture (
 	pictureId BIGINT PRIMARY KEY IDENTITY,
 	housingId BIGINT NOT NULL,
-	[name] VARCHAR(32) NOT NULL,
-	[description] VARCHAR(128),
-	pictureUrl VARCHAR(256),
+	[name] NVARCHAR(32) NOT NULL,
+	[description] NVARCHAR(128),
+	pictureUrl NVARCHAR(256),
 	FOREIGN KEY (housingId) REFERENCES Housing(housingId)
 )
 
 CREATE TABLE AmenityCategory (
 	categoryId INT PRIMARY KEY IDENTITY,
-	[name] VARCHAR(32) NOT NULL
+	[name] NVARCHAR(32) NOT NULL
 )
 
 CREATE TABLE AmenityIcon (
 	iconId INT PRIMARY KEY IDENTITY,
-	iconUrl VARCHAR(32) NOT NULL
+	iconUrl NVARCHAR(32) NOT NULL
 )
 
 CREATE TABLE Amenity (
 	amenityId INT PRIMARY KEY IDENTITY,
 	iconId INT NOT NULL,
 	categoryId INT NOT NULL,
-	[name] VARCHAR(32),
-	[description] VARCHAR(128),
+	[name] NVARCHAR(32),
+	[description] NVARCHAR(128),
 	FOREIGN KEY (iconId) REFERENCES AmenityIcon(iconId),
 	FOREIGN KEY (categoryId) REFERENCES AmenityCategory(categoryId)
 )
@@ -137,8 +137,8 @@ CREATE TABLE HostUserReview (
 	housingId BIGINT NOT NULL,
 	hostUserId BIGINT NOT NULL,
 	authorClientId BIGINT NOT NULL,
-	title VARCHAR(32) NOT NULL,
-	[description] VARCHAR(512),
+	title NVARCHAR(32) NOT NULL,
+	[description] NVARCHAR(512),
 	reviewDate DATE NOT NULL,
 	ratingValue TINYINT NOT NULL,
 	visible BIT NOT NULL DEFAULT 1,
@@ -151,8 +151,8 @@ CREATE TABLE ClientUserReview (
 	clientReviewId BIGINT PRIMARY KEY IDENTITY,
 	authorHostId BIGINT NOT NULL,
 	clientUserId BIGINT NOT NULL,
-	title VARCHAR(32) NOT NULL,
-	[description] VARCHAR(512),
+	title NVARCHAR(32) NOT NULL,
+	[description] NVARCHAR(512),
 	reviewDate DATE NOT NULL,
 	ratingValue TINYINT NOT NULL,
 	visible BIT NOT NULL DEFAULT 1,
@@ -162,8 +162,8 @@ CREATE TABLE ClientUserReview (
 
 CREATE TABLE PaymentMethod (
 	paymentMethodId TINYINT PRIMARY KEY IDENTITY,
-	[name] VARCHAR(32) NOT NULL,
-	[description] VARCHAR(128) NOT NULL
+	[name] NVARCHAR(32) NOT NULL,
+	[description] NVARCHAR(128) NOT NULL
 )
 
 CREATE TABLE HostAcceptedPaymentMethod (
@@ -176,8 +176,8 @@ CREATE TABLE HostAcceptedPaymentMethod (
 
 CREATE TABLE Category (
 	categoryId INT PRIMARY KEY IDENTITY,
-	[name] VARCHAR(32) NOT NULL,
-	[description] VARCHAR(128) NOT NULL
+	[name] NVARCHAR(32) NOT NULL,
+	[description] NVARCHAR(128) NOT NULL
 )
 
 CREATE TABLE HousingCategory (
@@ -194,7 +194,7 @@ CREATE TABLE ReviewReport (
 	hostReviewId BIGINT,
 	clientReviewId BIGINT,
 	accepted BIT,
-	[description] VARCHAR(256) NOT NULL,
+	[description] NVARCHAR(256) NOT NULL,
 	FOREIGN KEY (adminId) REFERENCES SiteUser(siteUserId),
 	FOREIGN KEY (hostReviewId) REFERENCES HostUserReview(hostReviewId),
 	FOREIGN KEY (clientReviewId) REFERENCES ClientUserReview(clientReviewId)
@@ -209,8 +209,8 @@ CREATE TABLE AdminAction (
 	amenityId INT,
 	housingId BIGINT,
 	actionType BIT NOT NULL, -- 0: update, 1: delete
-	updateOldValue VARCHAR(512),
-	updateNewValue VARCHAR(512),
+	updateOldValue NVARCHAR(512),
+	updateNewValue NVARCHAR(512),
 	actionTimestamp DATETIME NOT NULL DEFAULT GETDATE(),
 	FOREIGN KEY (adminId) REFERENCES SiteUser(siteUserId),
 	FOREIGN KEY (clientReviewId) REFERENCES ClientUserReview(clientReviewId),

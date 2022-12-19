@@ -61,7 +61,9 @@ CREATE TRIGGER verifyReport ON ReviewReport AFTER INSERT AS BEGIN
 END
 GO
 
-CREATE TRIGGER denyAdminActionDelete ON AdminAction AFTER DELETE AS BEGIN
+ALTER TRIGGER denyAdminActionDelete ON AdminAction AFTER DELETE AS BEGIN
+	IF (SELECT SYSTEM_USER) = 'server' RETURN
+
 	RAISERROR ('Admin action logs cannot be deleted.', 16, 1)
 	ROLLBACK
 END
