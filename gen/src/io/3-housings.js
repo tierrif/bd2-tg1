@@ -1,8 +1,8 @@
 const { genAddress } = require('./common/address-gen')
 
 module.exports = {
-  // Gerará 10000 utilizadores americanos.
   async inject(mssql) {
+    return
     for (let i = 0; i <= 10000; i++) {
       process.stdout.write(`\rGenerating housings: ${i / 100}%      `)
 

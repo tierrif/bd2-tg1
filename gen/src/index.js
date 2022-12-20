@@ -25,7 +25,7 @@ sql.connect(config, async (err) => {
     let now = new Date().getTime()
 
     const request = new sql.Request()
-    await request.query(`
+    /*await request.query(`
       EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'
       
       EXEC sp_MSForEachTable 'DELETE FROM ?'
@@ -33,7 +33,7 @@ sql.connect(config, async (err) => {
       EXEC sp_MSForEachTable 'ALTER TABLE ? WITH CHECK CHECK CONSTRAINT ALL'
 
       EXEC sp_MSForEachTable 'IF (OBJECTPROPERTY(OBJECT_ID(''?''), ''TableHasIdentity'') = 1) DBCC CHECKIDENT (''?'', RESEED, 0)'
-    `)
+    `)*/
 
     console.info(`\nData successfully dropped in ${new Date().getTime() - now}ms.`)
     console.info('Generating new data...\n')

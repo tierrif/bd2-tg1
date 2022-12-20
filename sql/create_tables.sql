@@ -87,11 +87,11 @@ CREATE TABLE Reservation (
 
 CREATE TABLE DateIntervalCost (
 	dateIntervalId BIGINT PRIMARY KEY IDENTITY,
-	roomId BIGINT NOT NULL,
+	housingId BIGINT NOT NULL,
 	dateFrom DATE NOT NULL,
 	dateTo DATE NOT NULL,
 	costPerNight MONEY NOT NULL,
-	FOREIGN KEY (roomId) REFERENCES Room(roomId)
+	FOREIGN KEY (housingId) REFERENCES Housing(housingId)
 )
 
 CREATE TABLE HousingPicture (

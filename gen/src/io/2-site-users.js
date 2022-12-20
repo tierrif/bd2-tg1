@@ -7,6 +7,7 @@ const { randomBytes, createHash } = require('crypto')
 module.exports = {
   // Gerará 10000 utilizadores americanos.
   async inject(mssql) {
+    return
     for (let i = 0; i <= 10000; i++) {
       const request = new mssql.Request()
       process.stdout.write(`\rGenerating site users: ${i / 100}%      `)
