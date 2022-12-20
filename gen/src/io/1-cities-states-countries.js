@@ -3,7 +3,6 @@ const json = require('../../data/world-cities_json.json')
 
 module.exports = {
   async inject(mssql) {
-    return // todo
     const now = new Date().getTime()
     let first = true
     for (city of json) {
@@ -13,8 +12,9 @@ module.exports = {
       
       let identity
       if (!country) {
-        if (!first) process.stdout.write(' done.\n')
-        process.stdout.write('Processing country: ' + city.country + '...')
+        const processingStr = '\rProcessing country: ' + city.country + '...                                 '
+        // if (!first) process.stdout.write(processingStr + 'done.')
+        process.stdout.write(processingStr)
         identity = (await request.query(`INSERT INTO Country (Name) VALUES (@country); SELECT @@IDENTITY as countryId`)).recordset[0]
       } else {
         identity = (await request.query(`SELECT * FROM Country WHERE Name = @country`)).recordset[0]

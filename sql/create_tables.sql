@@ -1,13 +1,13 @@
 USE tg1
 GO
 
---EXEC sp_msforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all"
---EXEC sp_msforeachtable "DROP TABLE ?"
-
 CREATE TABLE Country (
 	countryId INT PRIMARY KEY IDENTITY,
 	[name] NVARCHAR(64) NOT NULL
 )
+
+SELECT * FROM Housing
+SELECT * FROM SiteUser WHERE isAdmin = 1
 
 CREATE TABLE [State] (
 	stateId INT PRIMARY KEY IDENTITY,

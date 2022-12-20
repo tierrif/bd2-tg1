@@ -197,4 +197,13 @@ INSERT INTO Country ([name]) VALUES ('Yemen')
 INSERT INTO Country ([name]) VALUES ('Zambia')
 INSERT INTO Country ([name]) VALUES ('Zimbabwe')
 
-SELECT * FROM Country
+SELECT * FROM dbo.State WHERE countryId = (SELECT countryId FROM dbo.Country WHERE name = 'United States') ORDER BY name
+
+SELECT SiteUser.name, mobile, email, locationAddrLine1, locationAddrLine2, locationPostalCode, City.name, State.name, Country.name FROM dbo.SiteUser, City, State, Country
+WHERE City.cityId = dbo.SiteUser.cityId AND State.stateId = dbo.SiteUser.stateId AND State.countryId = Country.countryId
+
+SELECT * FROM State WHERE name = 'Massachusetts'
+SELECT * FROM dbo.Country WHERE countryId = 233
+
+DELETE FROM SiteUser
+DBCC CHECKIDENT ('SiteUser', RESEED, 0)

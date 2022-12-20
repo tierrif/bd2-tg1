@@ -1,8 +1,7 @@
 const firstNamesF = require('../../data/firstnames_f.json')
 const firstNamesM = require('../../data/firstnames_m.json')
 const surnames = require('../../data/surnames.json')
-const { addresses } = require('../../data/addresses-us-all.json')
-const stateCodes = require('../../data/states_hash.json')
+const { genAddress } = require('./common/address-gen')
 const { randomBytes, createHash } = require('crypto')
 
 module.exports = {
@@ -10,10 +9,7 @@ module.exports = {
   async inject(mssql) {
     for (let i = 0; i <= 10000; i++) {
       const request = new mssql.Request()
-
-      // Pré-definir o país.
-      const countryId = (await request.query('SELECT countryId FROM Country WHERE Name = \'United States\'')).recordset[0].countryId
-      request.input('countryId', mssql.Int, countryId)
+      process.stdout.write(`\rGenerating site users: ${i / 100}%      `)
 
       const name = this.randomName()
       // 70% dos utilizadores têm foto de perfil.
@@ -37,31 +33,8 @@ module.exports = {
       const fiscalId = isHost 
         ? Math.random().toString().slice(2, 11)
         : Math.random() > 0.3 ? null : Math.random().toString().slice(2, 11)
-
-      let selectedAddress = addresses[Math.floor(Math.random() * addresses.length)]
-      let locationAddrLine1 = selectedAddress.address1
-      let locationAddrLine2 = selectedAddress.address2 || null
-      let i = 0
-      request.input('cityName' + (++i), mssql.NVarChar, selectedAddress.city)
-      let cityId = (await request.query('SELECT cityId FROM City WHERE Name = @cityName' + i + ' AND countryId = @countryId')).recordset[0]
-      while (!cityId) {
-        console.warn('City not found: ' + selectedAddress.city + '. Retrying...')
-        selectedAddress = addresses[Math.floor(Math.random() * addresses.length)]
-        locationAddrLine1 = selectedAddress.address1
-        locationAddrLine2 = selectedAddress.address2 || null
-        request.input('cityName' + (++i), mssql.NVarChar, selectedAddress.city)
-        cityId = (await request.query('SELECT cityId FROM City WHERE Name = @cityName' + i + ' AND countryId = @countryId')).recordset[0]
-      }
-
-      i = 0
-      request.input('stateName' + (++i), mssql.NVarChar, stateCodes[selectedAddress.state])
-      let stateId = (await request.query('SELECT stateId FROM State WHERE Name = @stateName' + i + ' AND countryId = @countryId')).recordset[0]
-      if (!stateId) {
-        console.warn('State not found: ' + selectedAddress.state + '. Setting to default state (CA).')
-        request.input('stateName' + (++i), mssql.NVarChar, stateCodes['CA'])
-        stateId = (await request.query('SELECT stateId FROM State WHERE Name = @stateName' + i + ' AND countryId = @countryId')).recordset[0]
-      }
-      const locationPostalCode = selectedAddress.postalCode
+        
+      const { locationAddrLine1, locationAddrLine2, cityId, stateId, locationPostalCode } = await genAddress(mssql, request)
 
       request.input('name', mssql.NVarChar, name)
       request.input('profilePictureUrl', mssql.NVarChar, profilePictureUrl)
@@ -74,8 +47,8 @@ module.exports = {
       request.input('salt', mssql.NVarChar, salt)
       request.input('locationAddrLine1', mssql.NVarChar, locationAddrLine1)
       request.input('locationAddrLine2', mssql.NVarChar, locationAddrLine2)
-      request.input('cityId', mssql.Int, cityId.cityId)
-      request.input('stateId', mssql.Int, stateId.stateId)
+      request.input('cityId', mssql.Int, cityId)
+      request.input('stateId', mssql.Int, stateId)
       request.input('locationPostalCode', mssql.NVarChar, locationPostalCode)
       request.input('fiscalId', mssql.NVarChar, fiscalId)
 

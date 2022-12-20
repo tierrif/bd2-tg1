@@ -5,3 +5,5 @@ CREATE USER [server] FROM LOGIN [server]
 GRANT INSERT, UPDATE, DELETE, SELECT ON SCHEMA::dbo TO [server]
 GRANT CONTROL ON DATABASE::tg1 TO [server]
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [server]
+
+EXEC sp_MSForEachTable 'IF (OBJECTPROPERTY(OBJECT_ID(''?''), ''TableHasIdentity'') = 1) DBCC CHECKIDENT (''?'', RESEED, 0)'
