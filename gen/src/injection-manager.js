@@ -1,8 +1,12 @@
 const fs = require('fs')
 
 module.exports = async (sql) => {
-  const files = fs.readdirSync('./src/io')
-  await Promise.all(files.map((file) => file.replace('.js', ''))
+  const rawFiles = fs.readdirSync('./src/io')
+  const files = rawFiles.map((file) => file.replace('.js', ''))
+    .sort((a, b) => a - b)
     .map((file) => require(`./io/${file}`))
-    .map(async (module) => await module.inject(sql)))
+    
+  for (const module of files) {
+    await module.inject(sql)
+  }
 }
