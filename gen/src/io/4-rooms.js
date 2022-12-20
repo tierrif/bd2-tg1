@@ -1,5 +1,6 @@
 module.exports = {
   async inject(mssql) {
+    return
     // Get all housings.
     let request = new mssql.Request()
     const housings = (await request.query('SELECT * FROM Housing')).recordset

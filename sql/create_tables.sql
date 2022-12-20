@@ -7,7 +7,11 @@ CREATE TABLE Country (
 )
 
 SELECT * FROM Housing
-SELECT * FROM SiteUser WHERE isAdmin = 1
+SELECT * FROM SiteUser WHERE identityVerified = 1
+SELECT (595.0 / 993.0)
+DELETE FROM Room
+SELECT Room.housingId, roomId, Room.name, Housing.name FROM Room, Housing WHERE Housing.housingId = Room.housingId
+DBCC CHECKIDENT ('Room', RESEED, 0)
 
 CREATE TABLE [State] (
 	stateId INT PRIMARY KEY IDENTITY,
