@@ -30,6 +30,7 @@ CREATE PROCEDURE calculatePriceForDates
 	@startDate DATETIME,
 	@endDate DATETIME,
 	@roomId BIGINT,
+	@guestCount TINYINT,
 	
 	@finalPrice MONEY OUT
 AS BEGIN
@@ -53,6 +54,6 @@ AS BEGIN
 	END
 
 	-- Retornar.
-	SET @finalPrice = @toReturn
+	SET @finalPrice = @toReturn * @guestCount
 END
 

@@ -83,6 +83,7 @@ CREATE TABLE Reservation (
 	roomId BIGINT NOT NULL,
 	dateFrom DATE NOT NULL,
 	dateTo DATE NOT NULL,
+	guestCount TINYINT NOT NULL,
 	totalCost MONEY,
 	FOREIGN KEY (clientUserId) REFERENCES SiteUser(siteUserId),
 	FOREIGN KEY (housingId) REFERENCES Housing(housingId),

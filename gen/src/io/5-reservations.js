@@ -15,6 +15,13 @@ module.exports = {
       // Futura data aleatória.
       const dateFrom = new Date(new Date().getTime() + Math.random() * this.daysToMilliseconds(365))
       const dateTo = new Date(dateFrom.getTime() + (Math.random() * this.daysToMilliseconds(14)) + this.daysToMilliseconds(1))
+
+      request.input('clientUserId', mssql.Int, clientUserId)
+      request.input('roomId', mssql.Int, roomId)
+      request.input('dateFrom', mssql.DateTime, dateFrom)
+      request.input('dateTo', mssql.DateTime, dateTo)
+
+      
     }
   },
   daysToMilliseconds(days) {

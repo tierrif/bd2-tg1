@@ -89,12 +89,14 @@ CREATE TRIGGER autoPriceSet ON Reservation AFTER INSERT AS BEGIN
 			@startDate DATETIME,
 			@endDate DATETIME,
 			@roomId BIGINT,
+			@guestCount TINYINT,
 			@totalCost MONEY
 	SELECT @housingId = housingId FROM inserted
 	SELECT @startDate = dateFrom FROM inserted
 	SELECT @endDate = dateTo FROM inserted
 	SELECT @roomId = roomId FROM inserted
-	EXEC calculatePriceForDates @housingId, @startDate, @endDate, @roomId, @totalCost OUT
+	SELECT @guestCount = guestCount FROM inserted
+	EXEC calculatePriceForDates @housingId, @startDate, @endDate, @roomId, @guestCount, @totalCost OUT
 
 	UPDATE Reservation SET totalCost = @totalCost
 		WHERE reservationId = (SELECT reservationId FROM inserted)
