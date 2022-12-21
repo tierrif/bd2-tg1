@@ -1,9 +1,9 @@
 USE tg1
 GO
-CREATE LOGIN [server] WITH PASSWORD = 'server'
+CREATE LOGIN [server] WITH PASSWORD = 'server', CHECK_POLICY = OFF
 CREATE USER [server] FROM LOGIN [server]
 GRANT INSERT, UPDATE, DELETE, SELECT ON SCHEMA::dbo TO [server]
 GRANT CONTROL ON DATABASE::tg1 TO [server]
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [server]
 
-EXEC sp_MSForEachTable 'IF (OBJECTPROPERTY(OBJECT_ID(''?''), ''TableHasIdentity'') = 1) DBCC CHECKIDENT (''?'', RESEED, 0)'
+-- EXEC sp_MSForEachTable 'IF (OBJECTPROPERTY(OBJECT_ID(''?''), ''TableHasIdentity'') = 1) DBCC CHECKIDENT (''?'', RESEED, 0)'

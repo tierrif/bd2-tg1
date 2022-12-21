@@ -3,8 +3,8 @@ const json = require('../../data/world-cities_json.json')
 
 module.exports = {
   async inject(mssql) {
-    const now = new Date().getTime()
     return
+    const now = new Date().getTime()
     for (city of json) {
       const request = new mssql.Request()
       request.input('country', mssql.NVarChar, city.country)

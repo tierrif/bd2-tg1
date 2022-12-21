@@ -12,7 +12,12 @@ module.exports = {
       request.input('housingId', mssql.Int, housingId)
       const { roomId } = (await request.query('SELECT TOP 1 roomId FROM Room WHERE housingId = @housingId ORDER BY NEWID()')).recordset[0]
 
-
+      // Futura data aleatória.
+      const dateFrom = new Date(new Date().getTime() + Math.random() * this.daysToMilliseconds(365))
+      const dateTo = new Date(dateFrom.getTime() + (Math.random() * this.daysToMilliseconds(14)) + this.daysToMilliseconds(1))
     }
+  },
+  daysToMilliseconds(days) {
+    return days * 1000 * 60 * 60 * 24
   }
 }

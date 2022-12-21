@@ -6,12 +6,12 @@ CREATE TABLE Country (
 	[name] NVARCHAR(64) NOT NULL
 )
 
-SELECT * FROM Housing
+/*SELECT * FROM Housing
 SELECT * FROM SiteUser WHERE identityVerified = 1
 SELECT (595.0 / 993.0)
 DELETE FROM Room
 SELECT Room.housingId, roomId, Room.name, Housing.name FROM Room, Housing WHERE Housing.housingId = Room.housingId
-DBCC CHECKIDENT ('Room', RESEED, 0)
+DBCC CHECKIDENT ('Room', RESEED, 0)*/
 
 CREATE TABLE [State] (
 	stateId INT PRIMARY KEY IDENTITY,
@@ -83,7 +83,7 @@ CREATE TABLE Reservation (
 	roomId BIGINT NOT NULL,
 	dateFrom DATE NOT NULL,
 	dateTo DATE NOT NULL,
-	totalCost MONEY NOT NULL,
+	totalCost MONEY,
 	FOREIGN KEY (clientUserId) REFERENCES SiteUser(siteUserId),
 	FOREIGN KEY (housingId) REFERENCES Housing(housingId),
 	FOREIGN KEY (roomId) REFERENCES Room(roomId)

@@ -14,7 +14,7 @@ CREATE TRIGGER verifyAdminAction ON AdminAction AFTER INSERT, UPDATE AS BEGIN
 		RETURN
 	END
 
-	-- Verificar que pelo menos uma das chaves estrangeiras não é nula
+	-- Verificar que pelo menos uma das chaves estrangeiras nï¿½o ï¿½ nula
 	DECLARE @clientReviewId BIGINT,
 			@siteUserId BIGINT,
 			@hostReviewId BIGINT,
@@ -61,7 +61,7 @@ CREATE TRIGGER verifyReport ON ReviewReport AFTER INSERT AS BEGIN
 END
 GO
 
-ALTER TRIGGER denyAdminActionDelete ON AdminAction AFTER DELETE AS BEGIN
+CREATE TRIGGER denyAdminActionDelete ON AdminAction AFTER DELETE AS BEGIN
 	IF (SELECT SYSTEM_USER) = 'server' RETURN
 
 	RAISERROR ('Admin action logs cannot be deleted.', 16, 1)
@@ -75,6 +75,29 @@ CREATE TRIGGER denyVerifyUserManually ON SiteUser AFTER UPDATE AS BEGIN
 		RAISERROR ('Manual verification on SiteUser denied. Please use the verifyHostUser Stored Procedure instead.', 16, 1)
 		ROLLBACK
 	END
+END
+GO
+
+CREATE TRIGGER autoPriceSet ON Reservation AFTER INSERT AS BEGIN
+	IF (SELECT totalCost FROM inserted) IS NOT NULL BEGIN
+		RAISERROR ('Total cost must be NULL when inserting a reservation.', 16, 1)
+		ROLLBACK
+		RETURN
+	END
+
+	DECLARE @housingId BIGINT,
+			@startDate DATETIME,
+			@endDate DATETIME,
+			@roomId BIGINT,
+			@totalCost MONEY
+	SELECT @housingId = housingId FROM inserted
+	SELECT @startDate = dateFrom FROM inserted
+	SELECT @endDate = dateTo FROM inserted
+	SELECT @roomId = roomId FROM inserted
+	EXEC calculatePriceForDates @housingId, @startDate, @endDate, @roomId, @totalCost OUT
+
+	UPDATE Reservation SET totalCost = @totalCost
+		WHERE reservationId = (SELECT reservationId FROM inserted)
 END
 
 -- SELECT ratingAvg FROM Housing
