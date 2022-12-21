@@ -7,10 +7,15 @@ module.exports = {
 
       const request = new mssql.Request()
 
-      const { siteUserId: clientUserId } = (await request.query('SELECT TOP 1 siteUserId FROM SiteUser WHERE isHost = 0 ORDER BY NEWID()')).recordset[0]
-      const { housingId } = (await request.query('SELECT TOP 1 housingId FROM Housing ORDER BY NEWID()')).recordset[0]
+      const { siteUserId: clientUserId } = (await request.query(
+        'SELECT TOP 1 siteUserId FROM SiteUser WHERE isHost = 0 ORDER BY NEWID()')).recordset[0]
+      const housing = (await request.query('SELECT TOP 1 housingId FROM Housing ORDER BY NEWID()')).recordset[0]
+      const housingId = parseInt(housing.housingId)
       request.input('housingId', mssql.Int, housingId)
-      const { roomId } = (await request.query('SELECT TOP 1 roomId FROM Room WHERE housingId = @housingId ORDER BY NEWID()')).recordset[0]
+      const { roomId, maxGuestCount } = (await request.query(
+        'SELECT TOP 1 roomId, maxGuestCount FROM Room WHERE housingId = @housingId ORDER BY NEWID()')).recordset[0]
+      const guestCount = Math.floor(Math.random() * maxGuestCount) + 1
+      request.input('guestCount', mssql.TinyInt, guestCount)
 
       // Futura data aleatória.
       const dateFrom = new Date(new Date().getTime() + Math.random() * this.daysToMilliseconds(365))
@@ -21,7 +26,8 @@ module.exports = {
       request.input('dateFrom', mssql.DateTime, dateFrom)
       request.input('dateTo', mssql.DateTime, dateTo)
 
-      
+      await request.query(`INSERT INTO Reservation (housingId, clientUserId, roomId, dateFrom, dateTo, guestCount) 
+        VALUES (@housingId, @clientUserId, @roomId, @dateFrom, @dateTo, @guestCount)`)
     }
   },
   daysToMilliseconds(days) {
