@@ -1,10 +1,14 @@
 const { addresses } = require('../../../data/addresses-us-all.json')
 const stateCodes = require('../../../data/states_hash.json')
 
+let countryId = null
+
 module.exports = {
   async genAddress(mssql, request) {
     // Pré-definir o país.
-    const countryId = (await request.query('SELECT countryId FROM Country WHERE Name = \'United States\'')).recordset[0].countryId
+    if (!countryId) {
+      countryId = (await request.query('SELECT countryId FROM Country WHERE Name = \'United States\'')).recordset[0].countryId
+    }
     request.input('countryId', mssql.Int, countryId)
 
     let selectedAddress = addresses[Math.floor(Math.random() * addresses.length)]

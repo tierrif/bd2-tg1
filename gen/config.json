@@ -1,0 +1,10 @@
+{
+  "dbConfig": {
+    "user": "server",
+    "password": "server",
+    "server": "localhost",
+    "database": "tg1",
+    "trustServerCertificate": true
+  },
+  "threadAmount": 12
+}
