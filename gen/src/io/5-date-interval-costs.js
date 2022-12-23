@@ -1,4 +1,5 @@
 const insert = async (mssql, pool) => {
+  return
   const request = new mssql.Request(pool)
 
   const housing = (await request.query('SELECT TOP 1 housingId, defaultCost FROM Housing ORDER BY NEWID()')).recordset[0]

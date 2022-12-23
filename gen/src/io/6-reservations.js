@@ -1,4 +1,5 @@
 const insert = async (mssql, pool) => {
+  return
   const request = new mssql.Request(pool)
 
   const { siteUserId: clientUserId } = (await request.query(

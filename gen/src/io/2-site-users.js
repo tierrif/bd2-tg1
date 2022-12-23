@@ -5,6 +5,7 @@ const { genAddress } = require('./common/address-gen')
 const { randomBytes, createHash } = require('crypto')
 
 const insert = async (mssql, pool) => {
+  return
   const request = new mssql.Request(pool)
 
   const name = randomName()

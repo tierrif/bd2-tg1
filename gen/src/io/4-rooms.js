@@ -1,4 +1,5 @@
 const insert = async (mssql, pool, housingId) => {
+  return
   // Terá no máximo 3 quartos (4 - 1: Math.floor()).
   const maxLength = (Math.floor(Math.random() * 4) || 1)
   const ps = new mssql.PreparedStatement(pool)

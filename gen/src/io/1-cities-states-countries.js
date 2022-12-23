@@ -2,6 +2,7 @@ const json = require('../../data/world-cities_json.json')
   .sort((a, b) => a.country.localeCompare(b.country))
 
 const insert = async (mssql, pool, j, total) => {
+  return
   let i = 0
   for (city of json) {
     const request = new mssql.Request(pool)

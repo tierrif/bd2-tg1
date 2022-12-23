@@ -1,6 +1,7 @@
 const { genAddress } = require('./common/address-gen')
 
 const insert = async (mssql, pool) => {
+  return
   const request = new mssql.Request(pool)
 
   const { siteUserId: hostUserId } = (await request.query('SELECT TOP 1 siteUserId FROM SiteUser WHERE isHost = 1 ORDER BY NEWID()')).recordset[0]
