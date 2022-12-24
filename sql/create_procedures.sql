@@ -25,7 +25,7 @@ AS BEGIN
 END
 GO*/
 
-ALTER PROCEDURE calculatePriceForDates
+CREATE PROCEDURE calculatePriceForDates
 	@housingId BIGINT,
 	@startDate DATETIME,
 	@endDate DATETIME,
@@ -45,7 +45,7 @@ AS BEGIN
 		IF EXISTS (SELECT * FROM DateIntervalCost WHERE @startDate
 				BETWEEN dateFrom AND dateTo AND housingId = @housingId) BEGIN
 			-- Somar ao preço final o preço da data atual.
-			SELECT @toReturn = @toReturn + costPerNight FROM DateIntervalCost 
+			SELECT @toReturn = @toReturn + MAX(costPerNight) FROM DateIntervalCost 
 				WHERE @startDate BETWEEN dateFrom AND dateTo AND housingId = @housingId
 		END ELSE BEGIN
 			SELECT @toReturn = @toReturn + defaultCost FROM Housing WHERE housingId = @housingId
