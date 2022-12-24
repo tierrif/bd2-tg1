@@ -1,5 +1,8 @@
-const insert = async (mssql, pool) => {
-  return
+export const multithread = true
+
+export const amountOfDataToInsert = 5000
+
+export const insert = async (mssql, pool) => {
   const request = new mssql.Request(pool)
 
   const { siteUserId: clientUserId } = (await request.query(
@@ -23,12 +26,6 @@ const insert = async (mssql, pool) => {
 
   await request.query(`INSERT INTO Reservation (housingId, clientUserId, roomId, dateFrom, dateTo, guestCount) 
         VALUES (@housingId, @clientUserId, @roomId, @dateFrom, @dateTo, @guestCount)`)
-}
-
-module.exports = {
-  insert,
-  multithread: true,
-  amountOfDataToInsert: 5000,
 }
 
 const daysToMilliseconds = (days) => {

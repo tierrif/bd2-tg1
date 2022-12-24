@@ -1,5 +1,10 @@
-const insert = async (mssql, pool, housingId) => {
-  return
+export const multithread = true
+  
+export const iterableDataStatement = 'SELECT housingId FROM Housing'
+
+export const iterableDataPrimaryKey = 'housingId'
+
+export const insert = async (mssql, pool, housingId) => {
   // Terá no máximo 3 quartos (4 - 1: Math.floor()).
   const maxLength = (Math.floor(Math.random() * 4) || 1)
   const ps = new mssql.PreparedStatement(pool)
@@ -17,11 +22,4 @@ const insert = async (mssql, pool, housingId) => {
   }
 
   ps.unprepare()
-}
-
-module.exports = {
-  multithread: true,
-  iterableDataStatement: 'SELECT housingId FROM Housing',
-  iterableDataPrimaryKey: 'housingId',
-  insert,
 }

@@ -25,7 +25,7 @@ AS BEGIN
 END
 GO*/
 
-CREATE PROCEDURE calculatePriceForDates
+ALTER PROCEDURE calculatePriceForDates
 	@housingId BIGINT,
 	@startDate DATETIME,
 	@endDate DATETIME,

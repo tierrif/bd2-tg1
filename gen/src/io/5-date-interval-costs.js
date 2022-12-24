@@ -1,5 +1,8 @@
-const insert = async (mssql, pool) => {
-  return
+export const multithread = true
+
+export const amountOfDataToInsert = 5000
+
+export const insert = async (mssql, pool) => {
   const request = new mssql.Request(pool)
 
   const housing = (await request.query('SELECT TOP 1 housingId, defaultCost FROM Housing ORDER BY NEWID()')).recordset[0]
@@ -22,10 +25,4 @@ const insert = async (mssql, pool) => {
 
 const daysToMilliseconds = (days) => {
   return days * 1000 * 60 * 60 * 24
-}
-
-module.exports = {
-  insert,
-  multithread: true,
-  amountOfDataToInsert: 5000,
 }

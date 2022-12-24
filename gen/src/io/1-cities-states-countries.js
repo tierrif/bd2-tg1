@@ -1,10 +1,12 @@
-const json = require('../../data/world-cities_json.json')
-  .sort((a, b) => a.country.localeCompare(b.country))
+import json from '../../data/world-cities_json.json' assert { type: 'json' }
 
-const insert = async (mssql, pool, j, total) => {
-  return
+const iterableJson = json.sort((a, b) => a.country.localeCompare(b.country))
+
+export const multithread = false
+
+export const insert = async (mssql, pool, j, total) => {
   let i = 0
-  for (const city of json) {
+  for (const city of iterableJson) {
     const request = new mssql.Request(pool)
     request.input('country', mssql.NVarChar, city.country)
     const [country] = (await request.query(`SELECT * FROM Country WHERE Name = @country`)).recordset
@@ -32,13 +34,7 @@ const insert = async (mssql, pool, j, total) => {
 
     request.input('name', mssql.NVarChar, city.name)
     request.query('INSERT INTO City (Name, CountryId) VALUES (@name, @country_id)')
-    first = false
   }
 
-  process.stdout.write(`\r(${j}/${total}) Countries inserted.                     `)
-}
-
-module.exports = {
-  multithread: false,
-  insert
+  process.stdout.write(`\r(${j}/${total}) Countries inserted.                     \n`)
 }

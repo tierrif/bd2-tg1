@@ -108,24 +108,17 @@ CREATE TABLE HousingPicture (
 	FOREIGN KEY (housingId) REFERENCES Housing(housingId)
 )
 
-CREATE TABLE AmenityCategory (
-	categoryId INT PRIMARY KEY IDENTITY,
-	[name] NVARCHAR(32) NOT NULL
-)
-
 CREATE TABLE AmenityIcon (
 	iconId INT PRIMARY KEY IDENTITY,
-	iconUrl NVARCHAR(32) NOT NULL
+	iconUrl NVARCHAR(128) NOT NULL
 )
 
 CREATE TABLE Amenity (
 	amenityId INT PRIMARY KEY IDENTITY,
 	iconId INT NOT NULL,
-	categoryId INT NOT NULL,
 	[name] NVARCHAR(32),
 	[description] NVARCHAR(128),
 	FOREIGN KEY (iconId) REFERENCES AmenityIcon(iconId),
-	FOREIGN KEY (categoryId) REFERENCES AmenityCategory(categoryId)
 )
 
 CREATE TABLE HousingAmenity (

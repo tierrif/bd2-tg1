@@ -1,40 +1,45 @@
-const { Worker, isMainThread, workerData, parentPort } = require('node:worker_threads')
-const { dbConfig } = require('../config.json')
+import { Worker, isMainThread, workerData, parentPort } from 'node:worker_threads'
+import config from '../config.json' assert { type: 'json' }
+import { fileURLToPath } from 'url'
+import mssql from 'mssql'
+import { registrations } from './injection-manager.js'
+
+const dbConfig = config.dbConfig
+
+export let inject
 
 if (isMainThread) {
-  module.exports = {
-    async inject(j, total, type, workerAmount) {
-      return new Promise((resolve) => {
-        process.stdout.write(`\r(${j}/${total}) Generating ${_formatFileName(type)}...                                    `)
-        const workers = new Array(workerAmount)
-        let workersFinished = 0
-        for (let i = 0; i < workers.length; i++) {
-          const currentWorker = i
-          workers[i] = new Worker(__filename, { workerData: { i, workerAmount, type, total } })
-          const onDone = () => {
-            process.stdout.write(`\r(${j}/${total}) Generating ${_formatFileName(type)}... Done.                                          `)
-            workers.forEach((worker) => worker.terminate())
-            resolve()
-          }
-          workers[i].on('error', (error) => {
-            console.error(error)
-          })
-          workers[i].on('exit', (code) => {
-            if (code !== 0) return console.error((`Worker ${currentWorker} stopped with exit code ${code}.`))
-            else workersFinished++
-            if (workersFinished === workers.length) onDone()
-          })
-          workers[i].on('message', (message) => {
-            if (message === 'start') workers.forEach((worker) => worker.postMessage('start'))
-          })
+  inject = (j, total, type, workerAmount) => {
+    const now = new Date().getTime()
+    return new Promise((resolve) => {
+      process.stdout.write(`\r(${j}/${total}) Generating ${_formatFileName(type)}...                                    `)
+      const workers = new Array(workerAmount)
+      let workersFinished = 0
+      for (let i = 0; i < workers.length; i++) {
+        const currentWorker = i
+        workers[i] = new Worker(fileURLToPath(import.meta.url), { workerData: { i, workerAmount, type, total }, argv: process.argv })
+        const onDone = () => {
+          process.stdout.write(`\r(${j}/${total}) Generating ${_formatFileName(type)}... Done in ${new Date().getTime() - now}ms.                                          \n`)
+          workers.forEach((worker) => worker.terminate())
+          resolve()
         }
-      })
-    }
+        workers[i].on('error', (error) => {
+          console.error(error)
+        })
+        workers[i].on('exit', (code) => {
+          if (code !== 0) return console.error((`Worker ${currentWorker} stopped with exit code ${code}.`))
+          else workersFinished++
+          if (workersFinished === workers.length) onDone()
+        })
+        workers[i].on('message', (message) => {
+          if (message === 'start') workers.forEach((worker) => worker.postMessage('start'))
+        })
+      }
+    })
   }
 } else {
-  const mssql = require('mssql')
-  const { registrations } = require('./injection-manager')
-  const manager = registrations()
+  inject = null
+  const manager = await registrations()
 
   let pool
   mssql.connect(dbConfig).then(async () => {
@@ -87,7 +92,7 @@ if (isMainThread) {
     if (i === workerAmount - 1) {
       compensation = totalData % workerAmount
     }
-    
+
     for (let j = start; j < end + compensation; j++) {
       await registration.insert(mssql, pool, set?.[j]?.[registration.iterableDataPrimaryKey])
     }
@@ -100,6 +105,7 @@ const _formatFileName = (type) => {
   return type.split('-').slice(1).join('-').replace(/-/g, ' ')
     .split(' ')
     .join(' ')
+    .replace('.js', '')
 }
 
 const _getIndex = (type) => {

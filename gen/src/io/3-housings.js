@@ -1,7 +1,10 @@
-const { genAddress } = require('./common/address-gen')
+import { genAddress } from './common/address-gen.js'
 
-const insert = async (mssql, pool) => {
-  return
+export const multithread = true
+
+export const amountOfDataToInsert = 10000
+
+export const insert = async (mssql, pool) => {
   const request = new mssql.Request(pool)
 
   const { siteUserId: hostUserId } = (await request.query('SELECT TOP 1 siteUserId FROM SiteUser WHERE isHost = 1 ORDER BY NEWID()')).recordset[0]
@@ -71,10 +74,4 @@ const randomName = (cityName) => {
   return (Math.random() > 0.5 ? cityName + ' ' : '')
     + adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' 
     + housingTypes[Math.floor(Math.random() * housingTypes.length)]
-}
-
-module.exports = {
-  multithread: true,
-  amountOfDataToInsert: 10000,
-  insert
 }

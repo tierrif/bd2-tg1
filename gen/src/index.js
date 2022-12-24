@@ -1,11 +1,15 @@
-const sql = require('mssql')
-const { dbConfig } = require('../config.json')
-const prompt = require('prompt-sync')({ sigint: true })
-const manager = require('./injection-manager')
+import mssql from 'mssql'
+import config from '../config.json' assert { type: 'json' }
+import promptSync from 'prompt-sync'
+import { inject } from './injection-manager.js'
+
+const prompt = promptSync({ sigint: true })
+
+const dbConfig = config.dbConfig
 
 console.info('Welcome to the data generator. Connecting to SQL Server...\n')
 
-sql.connect(dbConfig, async (err) => {
+mssql.connect(dbConfig, async (err) => {
   if (err) {
     console.error(err)
   } else {
@@ -19,8 +23,8 @@ sql.connect(dbConfig, async (err) => {
       console.info('Dropping all data...')
       let now = new Date().getTime()
   
-      const request = new sql.Request()
-      /*await request.query(`
+      const request = new mssql.Request()
+      await request.query(`
         EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'
         
         EXEC sp_MSForEachTable 'DELETE FROM ?'
@@ -28,11 +32,11 @@ sql.connect(dbConfig, async (err) => {
         EXEC sp_MSForEachTable 'ALTER TABLE ? WITH CHECK CHECK CONSTRAINT ALL'
   
         EXEC sp_MSForEachTable 'IF (OBJECTPROPERTY(OBJECT_ID(''?''), ''TableHasIdentity'') = 1) DBCC CHECKIDENT (''?'', RESEED, 0)'
-      `)*/
+      `)
       console.info(`\nData successfully dropped in ${new Date().getTime() - now}ms.`)
       console.info('Generating new data...\n')
       now = new Date().getTime()
-      await manager.inject()
+      await inject()
   
       console.info(`\nData successfully generated in ${new Date().getTime() - now}ms.`)
     }

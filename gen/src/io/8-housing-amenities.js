@@ -1,6 +1,9 @@
-const { loremIpsum } = require('lorem-ipsum')
-const amenitiesSampleRaw = require('../../data/airbnb-amenities-sample.json')
-const amenitiesSample = amenitiesSampleRaw.records.map(amenity => amenity.fields.amenities)
+import { loremIpsum } from 'lorem-ipsum'
+import sample from '../../data/airbnb-amenities-sample.json' assert { type: 'json' }
+
+const records = sample.records
+
+const amenitiesSample = records.map(amenity => amenity.fields.amenities)
     .filter(amenity => amenity)
     .map(amenity => amenity.split(','))
     .reduce((acc, curr) => acc.concat(curr), [])
@@ -15,7 +18,13 @@ const amenitiesSample = amenitiesSampleRaw.records.map(amenity => amenity.fields
     }, {}) // Terá o número de ocorrências para usar como probabilidade.
 const total = Object.values(amenitiesSample).reduce((acc, curr) => acc + curr, 0)
 
-const insertSinglethread = async (mssql, pool, j, total) => {
+export const multithread = true
+
+export const iterableDataStatement = 'SELECT housingId FROM Housing'
+
+export const iterableDataPrimaryKey = 'housingId'
+
+export const insertSinglethread = async (mssql, pool, j, total) => {
   const amenityPs = new mssql.PreparedStatement(pool)
   amenityPs.input('name', mssql.NVarChar)
   amenityPs.input('description', mssql.NVarChar)
@@ -39,7 +48,7 @@ const insertSinglethread = async (mssql, pool, j, total) => {
   amenityPs.unprepare()
 }
 
-const insert = async (mssql, pool, housingId) => {
+export const insert = async (mssql, pool, housingId) => {
   const ps = new mssql.PreparedStatement(pool)
   ps.input('housingId', mssql.Int)
   ps.input('amenityId', mssql.Int)
@@ -59,12 +68,4 @@ const insert = async (mssql, pool, housingId) => {
   }
 
   ps.unprepare()
-}
-
-module.exports = {
-  insert,
-  insertSinglethread,
-  multithread: true,
-  iterableDataStatement: 'SELECT housingId FROM Housing',
-  iterableDataPrimaryKey: 'housingId',
 }

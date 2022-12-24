@@ -1,11 +1,16 @@
-const firstNamesF = require('../../data/firstnames_f.json')
-const firstNamesM = require('../../data/firstnames_m.json')
-const surnames = require('../../data/surnames.json')
-const { genAddress } = require('./common/address-gen')
-const { randomBytes, createHash } = require('crypto')
+import firstNamesF from '../../data/firstnames_f.json' assert { type: 'json' }
+import firstNamesM from '../../data/firstnames_m.json' assert { type: 'json' }
+import surnames from '../../data/surnames.json' assert { type: 'json' }
+import { genAddress } from './common/address-gen.js'
+import { randomBytes, createHash } from 'crypto'
 
-const insert = async (mssql, pool) => {
-  return
+const length = surnames.length
+
+export const multithread = true
+
+export const amountOfDataToInsert = 10000
+
+export const insert = async (mssql, pool) => {
   const request = new mssql.Request(pool)
 
   const name = randomName()
@@ -88,17 +93,11 @@ const insert = async (mssql, pool) => {
 const randomName = () => {
   const randomGender = Math.random() > 0.5 ? firstNamesF : firstNamesM
   return randomGender[Math.floor(Math.random() * randomGender.length)] + ' '
-    + surnames[Math.floor(Math.random() * surnames.length)]
+    + surnames[Math.floor(Math.random() * length)]
 }
 
 const randomEmail = (name) => {
   return name.toLowerCase().replace(/ /g, '.')
     + Math.floor(Math.random() * 10000)
     + (['@gmail.com', '@hotmail.com', '@outlook.com', '@yahoo.com'])[Math.floor(Math.random() * 4)]
-}
-
-module.exports = {
-  multithread: true,
-  amountOfDataToInsert: 10000,
-  insert
 }

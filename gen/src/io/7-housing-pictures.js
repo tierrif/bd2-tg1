@@ -1,7 +1,12 @@
-const { loremIpsum } = require('lorem-ipsum')
+import { loremIpsum } from 'lorem-ipsum'
 
-const insert = async (mssql, pool, housingId) => {
-  return
+export const multithread = true
+
+export const iterableDataStatement = 'SELECT housingId FROM Housing'
+
+export const iterableDataPrimaryKey = 'housingId'
+
+export const insert = async (mssql, pool, housingId) => {
   // Terá no máximo 4 fotografias (5 - 1: Math.floor()).
   const maxLength = (Math.floor(Math.random() * 5) || 1)
   const ps = new mssql.PreparedStatement(pool)
@@ -51,11 +56,4 @@ const randomPictureName = () => {
   ]
 
   return pictureNames[Math.floor(Math.random() * pictureNames.length)]
-}
-
-module.exports = {
-  multithread: true,
-  iterableDataStatement: 'SELECT housingId FROM Housing',
-  iterableDataPrimaryKey: 'housingId',
-  insert,
 }
