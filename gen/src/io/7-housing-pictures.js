@@ -2,6 +2,8 @@ import { loremIpsum } from 'lorem-ipsum'
 
 export const multithread = true
 
+export const enabled = false
+
 export const iterableDataStatement = 'SELECT housingId FROM Housing'
 
 export const iterableDataPrimaryKey = 'housingId'

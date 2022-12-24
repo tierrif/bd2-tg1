@@ -4,6 +4,8 @@ const iterableJson = json.sort((a, b) => a.country.localeCompare(b.country))
 
 export const multithread = false
 
+export const enabled = false
+
 export const insert = async (mssql, pool, j, total) => {
   let i = 0
   for (const city of iterableJson) {

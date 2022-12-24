@@ -1,7 +1,9 @@
 import mssql from 'mssql'
 import config from '../config.json' assert { type: 'json' }
 import promptSync from 'prompt-sync'
-import { inject } from './injection-manager.js'
+import { inject, registrations } from './injection-manager.js'
+
+const reg = await registrations()
 
 const prompt = promptSync({ sigint: true })
 
@@ -10,6 +12,9 @@ const dbConfig = config.dbConfig
 console.info('Welcome to the data generator. Connecting to SQL Server...\n')
 
 mssql.connect(dbConfig, async (err) => {
+  const pool = new mssql.ConnectionPool(dbConfig)
+  await pool.connect()
+  
   if (err) {
     console.error(err)
   } else {
@@ -23,20 +28,24 @@ mssql.connect(dbConfig, async (err) => {
       console.info('Dropping all data...')
       let now = new Date().getTime()
   
-      const request = new mssql.Request()
-      await request.query(`
-        EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'
-        
-        EXEC sp_MSForEachTable 'DELETE FROM ?'
-        
-        EXEC sp_MSForEachTable 'ALTER TABLE ? WITH CHECK CHECK CONSTRAINT ALL'
-  
-        EXEC sp_MSForEachTable 'IF (OBJECTPROPERTY(OBJECT_ID(''?''), ''TableHasIdentity'') = 1) DBCC CHECKIDENT (''?'', RESEED, 0)'
-      `)
+      for (const r of reg) {
+        if (r.enabled) {
+          const request = new mssql.Request()
+          request.input('tableName', mssql.VarChar, r.tableName)
+          
+          await request.query(`
+            ALTER TABLE ? NOCHECK CONSTRAINT ALL
+            DELETE FROM ?
+            ALTER TABLE ? WITH CHECK CHECK CONSTRAINT ALL
+            IF (OBJECTPROPERTY(OBJECT_ID(@tableName), 'TableHasIdentity) = 1) DBCC CHECKIDENT (@tableName, RESEED, 0)
+          `, [r.tableName, r.tableName, r.tableName])
+        }
+      }
+
       console.info(`\nData successfully dropped in ${new Date().getTime() - now}ms.`)
       console.info('Generating new data...\n')
       now = new Date().getTime()
-      await inject()
+      await inject(reg)
   
       console.info(`\nData successfully generated in ${new Date().getTime() - now}ms.`)
     }

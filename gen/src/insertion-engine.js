@@ -94,7 +94,10 @@ if (isMainThread) {
     }
 
     for (let j = start; j < end + compensation; j++) {
-      await registration.insert(mssql, pool, set?.[j]?.[registration.iterableDataPrimaryKey])
+      const pKey = registration.iterableDataPrimaryKey
+      await registration.insert(mssql, pool, pKey
+        ? set?.[j]?.[registration.iterableDataPrimaryKey]
+        : set?.[j])
     }
 
     process.exit(0)

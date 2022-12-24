@@ -3,6 +3,8 @@ import sample from '../../data/airbnb-amenities-sample.json' assert { type: 'jso
 
 const records = sample.records
 
+export const enabled = false
+
 const amenitiesSample = records.map(amenity => amenity.fields.amenities)
     .filter(amenity => amenity)
     .map(amenity => amenity.split(','))
@@ -24,7 +26,7 @@ export const iterableDataStatement = 'SELECT housingId FROM Housing'
 
 export const iterableDataPrimaryKey = 'housingId'
 
-export const insertSinglethread = async (mssql, pool, j, total) => {
+export const insertSinglethread = async (mssql, pool) => {
   const amenityPs = new mssql.PreparedStatement(pool)
   amenityPs.input('name', mssql.NVarChar)
   amenityPs.input('description', mssql.NVarChar)
