@@ -4,7 +4,7 @@ const json = require('../../data/world-cities_json.json')
 const insert = async (mssql, pool, j, total) => {
   return
   let i = 0
-  for (city of json) {
+  for (const city of json) {
     const request = new mssql.Request(pool)
     request.input('country', mssql.NVarChar, city.country)
     const [country] = (await request.query(`SELECT * FROM Country WHERE Name = @country`)).recordset

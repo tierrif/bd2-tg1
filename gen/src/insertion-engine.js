@@ -1,4 +1,4 @@
-const { Worker, isMainThread, workerData } = require('node:worker_threads')
+const { Worker, isMainThread, workerData, parentPort } = require('node:worker_threads')
 const { dbConfig } = require('../config.json')
 
 if (isMainThread) {
@@ -24,6 +24,9 @@ if (isMainThread) {
             else workersFinished++
             if (workersFinished === workers.length) onDone()
           })
+          workers[i].on('message', (message) => {
+            if (message === 'start') workers.forEach((worker) => worker.postMessage('start'))
+          })
         }
       })
     }
@@ -40,12 +43,29 @@ if (isMainThread) {
 
     const { i, workerAmount, type, total } = workerData
     const registration = manager.find((r) => r.type === type)
+
     if (!registration.multithread) {
       // Inserção feita apenas no thread 0.
       if (i === 0) registration.insert(mssql, pool, _getIndex(type), total).then(() => process.exit(0))
       else process.exit(0)
 
       return
+    }
+
+    if (registration.insertSinglethread) {
+      // Inserção feita apenas no thread 0 antes da inserção multithread.
+      if (i === 0) {
+        await registration.insertSinglethread(mssql, pool, _getIndex(type), total)
+        // Tell the other threads to start.
+        parentPort.postMessage('start')
+      } else {
+        // Wait for the first thread to finish.
+        await new Promise((resolve) => {
+          parentPort.on('message', (message) => {
+            if (message === 'start') resolve()
+          })
+        })
+      }
     }
 
     let totalData

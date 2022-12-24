@@ -1,6 +1,7 @@
 const { loremIpsum } = require('lorem-ipsum')
 
 const insert = async (mssql, pool, housingId) => {
+  return
   // Terá no máximo 4 fotografias (5 - 1: Math.floor()).
   const maxLength = (Math.floor(Math.random() * 5) || 1)
   const ps = new mssql.PreparedStatement(pool)

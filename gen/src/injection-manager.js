@@ -19,7 +19,8 @@ module.exports = {
     return files.map(({ fileName, mod }) => ({ 
       type: fileName, // Tipo de dados a serem inseridos.
       insert: mod.insert, // Função que insere os dados.
-      multithread: mod.multithread, // Se a inserção é feita em vários threads e automaticamente.
+      multithread: mod.multithread, // Se a inserção é feita em vários threads e automaticamente.,
+      insertSinglethread: mod.insertSinglethread, // Função que insere os dados em um único thread.
       amountOfDataToInsert: mod.amountOfDataToInsert, // Quantidade de dados a serem inseridos.
       iterableDataStatement: mod.iterableDataStatement, // Statement que buscará dados que serão iterados para inserção.
       iterableDataPrimaryKey: mod.iterableDataPrimaryKey, // Chave primária da tabela que será iterada.
