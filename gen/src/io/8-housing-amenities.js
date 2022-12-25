@@ -3,7 +3,9 @@ import sample from '../../data/airbnb-amenities-sample.json' assert { type: 'jso
 
 const records = sample.records
 
-export const enabled = false
+export const enabled = true
+
+export const tableNames = ['HousingAmenity', 'Amenity', 'AmenityIcon']
 
 const amenitiesSample = records.map(amenity => amenity.fields.amenities)
     .filter(amenity => amenity)
@@ -34,17 +36,24 @@ export const insertSinglethread = async (mssql, pool) => {
 
   await amenityPs.prepare('INSERT INTO Amenity (name, description, iconId) VALUES (@name, @description, @iconId)')
 
+  const insertedAmenities = []
   for (const amenity in amenitiesSample) {
     const request = new mssql.Request(pool)
     request.input('url', mssql.NVarChar, '/internal/icons/' + amenity.toLowerCase() + '_icon.svg')
     const { identity } = (await request.query(`INSERT INTO AmenityIcon (iconUrl) VALUES (@url);
       SELECT @@IDENTITY AS 'identity'`)).recordset[0]
 
+    if (insertedAmenities.includes(amenity)) {
+      continue
+    }
+
     await amenityPs.execute({
       name: amenity, iconId: identity, description: loremIpsum(
         { count: 1, units: 'sentences', paragraphLowerBound: 3, paragraphUpperBound: 7 }
       )
     })
+
+    insertedAmenities.push(amenity)
   }
 
   amenityPs.unprepare()

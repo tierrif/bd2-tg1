@@ -2,11 +2,13 @@ import { loremIpsum } from 'lorem-ipsum'
 
 export const multithread = true
 
-export const enabled = false
+export const enabled = true
 
 export const iterableDataStatement = 'SELECT housingId FROM Housing'
 
 export const iterableDataPrimaryKey = 'housingId'
+
+export const tableNames = ['HousingPicture']
 
 export const insert = async (mssql, pool, housingId) => {
   // Terá no máximo 4 fotografias (5 - 1: Math.floor()).

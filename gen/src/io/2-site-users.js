@@ -8,9 +8,11 @@ const length = surnames.length
 
 export const multithread = true
 
-export const enabled = false
+export const enabled = true
 
 export const amountOfDataToInsert = 10000
+
+export const tableNames = ['SiteUser']
 
 export const insert = async (mssql, pool) => {
   const request = new mssql.Request(pool)
@@ -21,7 +23,7 @@ export const insert = async (mssql, pool) => {
   // 5% dos utilizadores são anfitriões.
   const isHost = Math.random() > 0.95
   // 0.01% dos utilizadores são administradores.
-  const isAdmin = Math.random() > 0.9999
+  const isAdmin = Math.random() > 0.9995
   // Emails aleatórios compostos pelo nome, um número aleatório e servidor de email aleatório.
   const email = randomEmail(name)
   // 60% dos anfitriões tem identidade verificada.

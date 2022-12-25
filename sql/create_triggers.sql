@@ -40,11 +40,21 @@ GO
 -- to 0 if ReviewReport.clientReviewId IS NOT NULL or HostUserReview.visible to 0 if ReviewReport.hostReviewId IS NOT NULL
 
 CREATE TRIGGER updateVisibilityOnReportAccepted ON ReviewReport AFTER UPDATE AS BEGIN
-	IF (SELECT accepted FROM inserted) = 1 AND (SELECT accepted FROM deleted) = 0 BEGIN
+	IF (SELECT accepted FROM inserted) = 1 AND (SELECT accepted FROM deleted) IS NULL BEGIN
+		IF (SELECT adminId FROM inserted) IS NULL BEGIN
+			RAISERROR ('You must supply an admin who accepted the report.', 16, 1)
+			ROLLBACK
+			RETURN
+		END
+
 		IF (SELECT clientReviewId FROM inserted) IS NOT NULL BEGIN
 			UPDATE ClientUserReview SET visible = 0 WHERE clientReviewId = (SELECT clientReviewId FROM inserted)
+			UPDATE ReviewReport SET accepted = 1, adminId = (SELECT adminId FROM inserted) 
+				WHERE clientReviewId = (SELECT clientReviewId FROM inserted)
 		END ELSE IF (SELECT hostReviewId FROM inserted) IS NOT NULL BEGIN
 			UPDATE HostUserReview SET visible = 0 WHERE hostReviewId = (SELECT hostReviewId FROM inserted)
+			UPDATE ReviewReport SET accepted = 1, adminId = (SELECT adminId FROM inserted) 
+				WHERE hostReviewId = (SELECT hostReviewId FROM inserted)
 		END
 	END
 END
@@ -56,6 +66,16 @@ CREATE TRIGGER verifyReport ON ReviewReport AFTER INSERT AS BEGIN
 			OR ((SELECT clientReviewId FROM inserted) IS NOT NULL
 			AND (SELECT hostReviewId FROM inserted) IS NOT NULL) BEGIN
 		RAISERROR ('Reports MUST have either hostReviewId or clientReviewId NULL, but NEVER both!', 16, 1)
+		ROLLBACK
+	END
+
+	IF (SELECT accepted FROM inserted) = 1 BEGIN
+		RAISERROR ('Reports can''t be accepted on creation!', 16, 1)
+		ROLLBACK
+	END
+
+	IF (SELECT adminId FROM inserted) IS NOT NULL BEGIN
+		RAISERROR ('Reports must NOT have an adminId on creation!', 16, 1)
 		ROLLBACK
 	END
 END

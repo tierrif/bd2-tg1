@@ -28,24 +28,25 @@ mssql.connect(dbConfig, async (err) => {
       console.info('Dropping all data...')
       let now = new Date().getTime()
   
-      for (const r of reg) {
+      for (const r of reg.reverse()) {
         if (r.enabled) {
-          const request = new mssql.Request()
-          request.input('tableName', mssql.VarChar, r.tableName)
-          
-          await request.query(`
-            ALTER TABLE ? NOCHECK CONSTRAINT ALL
-            DELETE FROM ?
-            ALTER TABLE ? WITH CHECK CHECK CONSTRAINT ALL
-            IF (OBJECTPROPERTY(OBJECT_ID(@tableName), 'TableHasIdentity) = 1) DBCC CHECKIDENT (@tableName, RESEED, 0)
-          `, [r.tableName, r.tableName, r.tableName])
+          for (const tableName of r.tableNames) {
+            const request = new mssql.Request()
+            request.input('tableName', mssql.VarChar, tableName)
+            await request.query(`
+            ALTER TABLE ${tableName} NOCHECK CONSTRAINT ALL
+            DELETE FROM ${tableName}
+            ALTER TABLE ${tableName} WITH CHECK CHECK CONSTRAINT ALL
+            IF (OBJECTPROPERTY(OBJECT_ID(@tableName), 'TableHasIdentity') = 1) DBCC CHECKIDENT (@tableName, RESEED, 0)
+          `)
+          }
         }
       }
 
       console.info(`\nData successfully dropped in ${new Date().getTime() - now}ms.`)
       console.info('Generating new data...\n')
       now = new Date().getTime()
-      await inject(reg)
+      await inject(reg.reverse())
   
       console.info(`\nData successfully generated in ${new Date().getTime() - now}ms.`)
     }

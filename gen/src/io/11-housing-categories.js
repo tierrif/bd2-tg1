@@ -8,6 +8,8 @@ export const iterableDataStatement = `SELECT housingId FROM Housing`
 
 export const iterableDataPrimaryKey = 'housingId'
 
+export const tableNames = ['HousingCategory', 'Category']
+
 const categories = [
   'Private Rooms',
   'Entire Home',
@@ -46,7 +48,7 @@ export const insert = async (mssql, pool, housingId) => {
   const maxLength = Math.floor(Math.random() * 3) + 1
   const insertedIds = []
   for (let i = 0; i < maxLength; i++) {
-    const categoryId = Math.floor(Math.random() * categories.length) + 1
+    const { categoryId } = (await pool.request().query(`SELECT TOP 1 categoryId FROM Category ORDER BY NEWID()`)).recordset[0]
     if (insertedIds.includes(categoryId)) {
       --i
       continue

@@ -8,11 +8,17 @@ const dbConfig = config.dbConfig
 
 export let inject
 
+export const getIndex = (type) => {
+  return parseInt(type.split('-')[0])
+}
+
 if (isMainThread) {
   inject = (j, total, type, workerAmount) => {
     const now = new Date().getTime()
     return new Promise((resolve) => {
-      process.stdout.write(`\r(${j}/${total}) Generating ${_formatFileName(type)}...                                    `)
+      if (getIndex(type) > 1) {
+        process.stdout.write(`\r(${j}/${total}) Generating ${_formatFileName(type)}...                                    `)
+      }
       const workers = new Array(workerAmount)
       let workersFinished = 0
       for (let i = 0; i < workers.length; i++) {
@@ -51,7 +57,7 @@ if (isMainThread) {
 
     if (!registration.multithread) {
       // Inserção feita apenas no thread 0.
-      if (i === 0) registration.insert(mssql, pool, _getIndex(type), total).then(() => process.exit(0))
+      if (i === 0) registration.insert(mssql, pool, getIndex(type), total, parentPort).then(() => process.exit(0))
       else process.exit(0)
 
       return
@@ -60,7 +66,7 @@ if (isMainThread) {
     if (registration.insertSinglethread) {
       // Inserção feita apenas no thread 0 antes da inserção multithread.
       if (i === 0) {
-        await registration.insertSinglethread(mssql, pool, _getIndex(type), total)
+        await registration.insertSinglethread(mssql, pool, getIndex(type), total)
         // Tell the other threads to start.
         parentPort.postMessage('start')
       } else {
@@ -92,7 +98,7 @@ if (isMainThread) {
     if (i === workerAmount - 1) {
       compensation = totalData % workerAmount
     }
-
+    
     for (let j = start; j < end + compensation; j++) {
       const pKey = registration.iterableDataPrimaryKey
       await registration.insert(mssql, pool, pKey
@@ -109,8 +115,4 @@ const _formatFileName = (type) => {
     .split(' ')
     .join(' ')
     .replace('.js', '')
-}
-
-const _getIndex = (type) => {
-  return parseInt(type.split('-')[0])
 }

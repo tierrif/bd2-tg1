@@ -2,9 +2,11 @@ import { genAddress } from './common/address-gen.js'
 
 export const multithread = true
 
-export const enabled = false
+export const enabled = true
 
 export const amountOfDataToInsert = 10000
+
+export const tableNames = ['Housing']
 
 export const insert = async (mssql, pool) => {
   const request = new mssql.Request(pool)

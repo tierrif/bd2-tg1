@@ -16,14 +16,21 @@ AS BEGIN
 END
 GO
 
-/*CREATE PROCEDURE findRoomForGuestAmount
+CREATE PROCEDURE findRoomForGuestAmount
 	@housingId BIGINT,
 	@amount TINYINT,
 	@roomId BIGINT OUT
 AS BEGIN
-	SELECT TOP (1) roomId, MIN(maxGuestCount) FROM Room WHERE housingId = @housingId AND maxGuestCount < @amount ORDER BY maxGuestCount ASC
+	IF NOT EXISTS (SELECT * FROM Housing WHERE housingId = @housingId) BEGIN
+		RAISERROR ('This housing does not exist.', 16, 1)
+		RETURN
+	END
+
+	-- Obter o quarto com a menor capacidade que seja maior ou igual à quantidade de hóspedes.
+	SELECT TOP 1 @roomId = roomId FROM Room WHERE housingId = @housingId AND maxGuestCount >= @amount
+		ORDER BY maxGuestCount ASC
 END
-GO*/
+GO
 
 CREATE PROCEDURE calculatePriceForDates
 	@housingId BIGINT,
@@ -56,4 +63,16 @@ AS BEGIN
 	-- Retornar.
 	SET @finalPrice = @toReturn * @guestCount
 END
+GO
 
+CREATE PROCEDURE maxGuestCount
+	@housingId BIGINT,
+	@maxGuestCount TINYINT OUT
+AS BEGIN
+	IF NOT EXISTS (SELECT * FROM Housing WHERE housingId = @housingId) BEGIN
+		RAISERROR ('This housing does not exist.', 16, 1)
+		RETURN
+	END
+
+	SELECT @maxGuestCount = MAX(maxGuestCount) FROM Room WHERE housingId = @housingId
+END

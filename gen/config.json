@@ -4,7 +4,12 @@
     "password": "server",
     "server": "localhost",
     "database": "tg1",
-    "trustServerCertificate": true
+    "trustServerCertificate": true,
+    "pool": {
+      "max": 10,
+      "min": 0,
+      "idleTimeoutMillis": 30000
+    }
   },
   "threadAmount": 12
 }

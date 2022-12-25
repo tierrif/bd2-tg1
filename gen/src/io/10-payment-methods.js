@@ -1,10 +1,12 @@
 export const multithread = true
 
-export const enabled = false
+export const enabled = true
 
 export const iterableDataStatement = `SELECT siteUserId FROM SiteUser WHERE isHost = 1`
 
 export const iterableDataPrimaryKey = 'siteUserId'
+
+export const tableNames = ['HostAcceptedPaymentMethod', 'PaymentMethod']
 
 const paymentMethods = [
   {

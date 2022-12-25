@@ -6,7 +6,9 @@ export const multithread = false
 
 export const enabled = false
 
-export const insert = async (mssql, pool, j, total) => {
+export const tableNames = ['City', 'State', 'Country']
+
+export const insert = async (mssql, pool, j, total, parentPort) => {
   let i = 0
   for (const city of iterableJson) {
     const request = new mssql.Request(pool)
@@ -37,6 +39,4 @@ export const insert = async (mssql, pool, j, total) => {
     request.input('name', mssql.NVarChar, city.name)
     request.query('INSERT INTO City (Name, CountryId) VALUES (@name, @country_id)')
   }
-
-  process.stdout.write(`\r(${j}/${total}) Countries inserted.                     \n`)
 }

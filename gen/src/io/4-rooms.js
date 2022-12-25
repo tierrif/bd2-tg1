@@ -1,10 +1,12 @@
 export const multithread = true
 
-export const enabled = false
+export const enabled = true
   
 export const iterableDataStatement = 'SELECT housingId FROM Housing'
 
 export const iterableDataPrimaryKey = 'housingId'
+
+export const tableNames = ['Room']
 
 export const insert = async (mssql, pool, housingId) => {
   // Terá no máximo 3 quartos (4 - 1: Math.floor()).

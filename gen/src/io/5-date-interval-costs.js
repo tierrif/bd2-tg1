@@ -1,8 +1,10 @@
 export const multithread = true
 
-export const enabled = false
+export const enabled = true
 
 export const amountOfDataToInsert = 5000
+
+export const tableNames = ['DateIntervalCost']
 
 export const insert = async (mssql, pool) => {
   const request = new mssql.Request(pool)

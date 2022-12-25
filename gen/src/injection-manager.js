@@ -1,5 +1,5 @@
 import { readdirSync } from 'fs'
-import { inject as _inject } from './insertion-engine.js'
+import { getIndex, inject as _inject } from './insertion-engine.js'
 import config from '../config.json' assert { type: 'json' }
 
 export async function inject(reg) {
@@ -11,7 +11,7 @@ export async function inject(reg) {
 export async function registrations() {
   const rawFiles = readdirSync('./src/io')
   const files = (await Promise.all(rawFiles.filter((file) => file.endsWith('.js'))
-    .sort((a, b) => a - b)
+    .sort((a, b) => getIndex(a) - getIndex(b))
     .map(async (file) => ({ fileName: file, mod: await import(`./io/${file}`) }))
   )).filter((file) => file.mod.enabled)
 
@@ -19,6 +19,8 @@ export async function registrations() {
     type: fileName,
     insert: mod.insert,
     multithread: mod.multithread,
+    tableNames: mod.tableNames,
+    enabled: mod.enabled,
     insertSinglethread: mod.insertSinglethread,
     amountOfDataToInsert: mod.amountOfDataToInsert,
     iterableDataStatement: mod.iterableDataStatement,

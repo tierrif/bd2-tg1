@@ -103,7 +103,7 @@ CREATE TABLE HousingPicture (
 	pictureId BIGINT PRIMARY KEY IDENTITY,
 	housingId BIGINT NOT NULL,
 	[name] NVARCHAR(32) NOT NULL,
-	[description] NVARCHAR(128),
+	[description] NVARCHAR(256),
 	pictureUrl NVARCHAR(256),
 	FOREIGN KEY (housingId) REFERENCES Housing(housingId)
 )
@@ -117,7 +117,7 @@ CREATE TABLE Amenity (
 	amenityId INT PRIMARY KEY IDENTITY,
 	iconId INT NOT NULL,
 	[name] NVARCHAR(32),
-	[description] NVARCHAR(128),
+	[description] NVARCHAR(256),
 	FOREIGN KEY (iconId) REFERENCES AmenityIcon(iconId),
 )
 
