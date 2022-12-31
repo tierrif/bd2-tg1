@@ -1,36 +1,47 @@
 USE tg1
 GO
 
-CREATE TABLE Country (
-	countryId INT PRIMARY KEY IDENTITY,
+CREATE SCHEMA Locations
+GO
+
+CREATE SCHEMA General
+GO
+
+CREATE SCHEMA HighFrequency
+GO
+
+CREATE SCHEMA LowFrequency
+GO
+
+CREATE SCHEMA Reviews
+GO
+
+CREATE SCHEMA Moderation
+GO
+
+CREATE TABLE Locations.Country (
+	countryId INT IDENTITY CONSTRAINT PK_Country PRIMARY KEY,
 	[name] NVARCHAR(64) NOT NULL
-)
+) ON tg1_Locations
 
-/*SELECT * FROM Housing
-SELECT * FROM SiteUser WHERE identityVerified = 1
-SELECT (595.0 / 993.0)
-DELETE FROM Room
-SELECT Room.housingId, roomId, Room.name, Housing.name FROM Room, Housing WHERE Housing.housingId = Room.housingId
-DBCC CHECKIDENT ('Room', RESEED, 0)*/
-
-CREATE TABLE [State] (
-	stateId INT PRIMARY KEY IDENTITY,
+CREATE TABLE Locations.State (
+	stateId INT IDENTITY CONSTRAINT PK_State PRIMARY KEY,
 	countryId INT NOT NULL,
 	[name] NVARCHAR(64) NOT NULL,
 
-	FOREIGN KEY (countryId) REFERENCES Country(countryId)
-)
+	FOREIGN KEY (countryId) REFERENCES Locations.Country(countryId)
+) ON tg1_Locations
 
-CREATE TABLE City (
-	cityId INT PRIMARY KEY IDENTITY,
+CREATE TABLE Locations.City (
+	cityId INT IDENTITY CONSTRAINT PK_City PRIMARY KEY,
 	countryId INT NOT NULL,
 	[name] NVARCHAR(64) NOT NULL,
 
-	FOREIGN KEY (countryId) REFERENCES Country(countryId)
-)
+	FOREIGN KEY (countryId) REFERENCES Locations.Country(countryId)
+) ON tg1_Locations
 
-CREATE TABLE SiteUser (
-	siteUserId BIGINT PRIMARY KEY IDENTITY,
+CREATE TABLE General.SiteUser (
+	siteUserId BIGINT IDENTITY CONSTRAINT PK_SiteUser PRIMARY KEY,
 	[name] NVARCHAR(64) NOT NULL,
 	profilePictureUrl NVARCHAR(256),
 	joinDate DATETIME NOT NULL DEFAULT GETDATE(),
@@ -48,12 +59,12 @@ CREATE TABLE SiteUser (
 	isHost BIT NOT NULL DEFAULT 0,
 	isAdmin BIT NOT NULL DEFAULT 0,
 
-	FOREIGN KEY (cityId) REFERENCES City(cityId),
-	FOREIGN KEY (stateId) REFERENCES [State](stateId)
-)
+	FOREIGN KEY (cityId) REFERENCES Locations.City(cityId),
+	FOREIGN KEY (stateId) REFERENCES Locations.State(stateId)
+) ON tg1_General
 
-CREATE TABLE Housing (
-	housingId BIGINT PRIMARY KEY IDENTITY,
+CREATE TABLE General.Housing (
+	housingId BIGINT IDENTITY CONSTRAINT PK_Housing PRIMARY KEY,
 	hostUserId BIGINT NOT NULL,
 	[name] NVARCHAR(128) NOT NULL,
 	defaultCost MONEY NOT NULL,
@@ -63,21 +74,21 @@ CREATE TABLE Housing (
 	locationPostalCode NVARCHAR(16) NOT NULL,
 	cityId INT NOT NULL,
 	stateId INT,
-	FOREIGN KEY (hostUserId) REFERENCES SiteUser(siteUserId),
-	FOREIGN KEY (cityId) REFERENCES City(cityId),
-	FOREIGN KEY (stateId) REFERENCES [State](stateId)
-)
+	FOREIGN KEY (hostUserId) REFERENCES General.SiteUser(siteUserId),
+	FOREIGN KEY (cityId) REFERENCES Locations.City(cityId),
+	FOREIGN KEY (stateId) REFERENCES Locations.State(stateId)
+) ON tg1_General
 
-CREATE TABLE Room (
-	roomId BIGINT PRIMARY KEY IDENTITY,
+CREATE TABLE General.Room (
+	roomId BIGINT IDENTITY CONSTRAINT PK_Room PRIMARY KEY,
 	housingId BIGINT NOT NULL,
 	[name] NVARCHAR(32) NOT NULL,
 	maxGuestCount TINYINT NOT NULL,
-	FOREIGN KEY (housingId) REFERENCES Housing(housingId)
-)
+	FOREIGN KEY (housingId) REFERENCES General.Housing(housingId)
+) ON tg1_General
 
-CREATE TABLE Reservation (
-	reservationId BIGINT PRIMARY KEY IDENTITY,
+CREATE TABLE HighFrequency.Reservation (
+	reservationId BIGINT IDENTITY CONSTRAINT PK_Reservation PRIMARY KEY,
 	clientUserId BIGINT NOT NULL,
 	housingId BIGINT NOT NULL,
 	roomId BIGINT NOT NULL,
@@ -85,53 +96,53 @@ CREATE TABLE Reservation (
 	dateTo DATE NOT NULL,
 	guestCount TINYINT NOT NULL,
 	totalCost MONEY,
-	FOREIGN KEY (clientUserId) REFERENCES SiteUser(siteUserId),
-	FOREIGN KEY (housingId) REFERENCES Housing(housingId),
-	FOREIGN KEY (roomId) REFERENCES Room(roomId)
-)
+	FOREIGN KEY (clientUserId) REFERENCES General.SiteUser(siteUserId),
+	FOREIGN KEY (housingId) REFERENCES General.Housing(housingId),
+	FOREIGN KEY (roomId) REFERENCES General.Room(roomId)
+) ON tg1_HighFrequency
 
-CREATE TABLE DateIntervalCost (
-	dateIntervalId BIGINT PRIMARY KEY IDENTITY,
+CREATE TABLE HighFrequency.DateIntervalCost (
+	dateIntervalId BIGINT IDENTITY CONSTRAINT PK_DateInterval PRIMARY KEY,
 	housingId BIGINT NOT NULL,
 	dateFrom DATE NOT NULL,
 	dateTo DATE NOT NULL,
 	costPerNight MONEY NOT NULL,
-	FOREIGN KEY (housingId) REFERENCES Housing(housingId)
-)
+	FOREIGN KEY (housingId) REFERENCES General.Housing(housingId)
+) ON tg1_HighFrequency
 
-CREATE TABLE HousingPicture (
-	pictureId BIGINT PRIMARY KEY IDENTITY,
+CREATE TABLE HighFrequency.HousingPicture (
+	pictureId BIGINT IDENTITY CONSTRAINT PK_HousingPicture PRIMARY KEY,
 	housingId BIGINT NOT NULL,
 	[name] NVARCHAR(32) NOT NULL,
 	[description] NVARCHAR(256),
 	pictureUrl NVARCHAR(256),
-	FOREIGN KEY (housingId) REFERENCES Housing(housingId)
-)
+	FOREIGN KEY (housingId) REFERENCES General.Housing(housingId)
+) ON tg1_HighFrequency
 
-CREATE TABLE AmenityIcon (
-	iconId INT PRIMARY KEY IDENTITY,
+CREATE TABLE LowFrequency.AmenityIcon (
+	iconId INT IDENTITY CONSTRAINT PK_AmenityIcon PRIMARY KEY,
 	iconUrl NVARCHAR(128) NOT NULL
-)
+) ON tg1_LowFrequency
 
-CREATE TABLE Amenity (
-	amenityId INT PRIMARY KEY IDENTITY,
+CREATE TABLE LowFrequency.Amenity (
+	amenityId INT IDENTITY CONSTRAINT PK_Amenity PRIMARY KEY,
 	iconId INT NOT NULL,
 	[name] NVARCHAR(32),
 	[description] NVARCHAR(256),
-	FOREIGN KEY (iconId) REFERENCES AmenityIcon(iconId),
-)
+	FOREIGN KEY (iconId) REFERENCES LowFrequency.AmenityIcon(iconId),
+) ON tg1_LowFrequency
 
-CREATE TABLE HousingAmenity (
+CREATE TABLE General.HousingAmenity (
 	housingId BIGINT NOT NULL,
 	amenityId INT NOT NULL,
 	isPresent BIT NOT NULL,
 	PRIMARY KEY (housingId, amenityId),
-	FOREIGN KEY (housingId) REFERENCES Housing(housingId),
-	FOREIGN KEY (amenityId) REFERENCES Amenity(amenityId)
-)
+	FOREIGN KEY (housingId) REFERENCES General.Housing(housingId),
+	FOREIGN KEY (amenityId) REFERENCES LowFrequency.Amenity(amenityId)
+) ON tg1_General
 
-CREATE TABLE HostUserReview (
-	hostReviewId BIGINT PRIMARY KEY IDENTITY,
+CREATE TABLE Reviews.HostUserReview (
+	hostReviewId BIGINT IDENTITY CONSTRAINT PK_HostUserReview PRIMARY KEY,
 	housingId BIGINT NOT NULL,
 	hostUserId BIGINT NOT NULL,
 	authorClientId BIGINT NOT NULL,
@@ -140,13 +151,13 @@ CREATE TABLE HostUserReview (
 	reviewDate DATE NOT NULL DEFAULT GETDATE(),
 	ratingValue TINYINT NOT NULL,
 	visible BIT NOT NULL DEFAULT 1,
-	FOREIGN KEY (housingId) REFERENCES Housing(housingId),
-	FOREIGN KEY (hostUserId) REFERENCES SiteUser(siteUserId),
-	FOREIGN KEY (authorClientId) REFERENCES SiteUser(siteUserId)
-)
+	FOREIGN KEY (housingId) REFERENCES General.Housing(housingId),
+	FOREIGN KEY (hostUserId) REFERENCES General.SiteUser(siteUserId),
+	FOREIGN KEY (authorClientId) REFERENCES General.SiteUser(siteUserId)
+) ON tg1_Reviews
 
-CREATE TABLE ClientUserReview (
-	clientReviewId BIGINT PRIMARY KEY IDENTITY,
+CREATE TABLE Reviews.ClientUserReview (
+	clientReviewId BIGINT IDENTITY CONSTRAINT PK_ClientUserReview PRIMARY KEY,
 	authorHostId BIGINT NOT NULL,
 	clientUserId BIGINT NOT NULL,
 	title NVARCHAR(64) NOT NULL,
@@ -154,52 +165,52 @@ CREATE TABLE ClientUserReview (
 	reviewDate DATE NOT NULL DEFAULT GETDATE(),
 	ratingValue TINYINT NOT NULL,
 	visible BIT NOT NULL DEFAULT 1,
-	FOREIGN KEY (authorHostId) REFERENCES SiteUser(siteUserId),
-	FOREIGN KEY (clientUserId) REFERENCES SiteUser(siteUserId)
-)
+	FOREIGN KEY (authorHostId) REFERENCES General.SiteUser(siteUserId),
+	FOREIGN KEY (clientUserId) REFERENCES General.SiteUser(siteUserId)
+) ON tg1_Reviews
 
-CREATE TABLE PaymentMethod (
-	paymentMethodId TINYINT PRIMARY KEY IDENTITY,
+CREATE TABLE LowFrequency.PaymentMethod (
+	paymentMethodId TINYINT IDENTITY CONSTRAINT PK_PaymentMethod PRIMARY KEY,
 	[name] NVARCHAR(32) NOT NULL,
 	[description] NVARCHAR(128) NOT NULL
-)
+) ON tg1_LowFrequency
 
-CREATE TABLE HostAcceptedPaymentMethod (
+CREATE TABLE General.HostAcceptedPaymentMethod (
 	hostUserId BIGINT NOT NULL,
 	paymentMethodId TINYINT NOT NULL,
 	PRIMARY KEY (hostUserId, paymentMethodId),
-	FOREIGN KEY (hostUserId) REFERENCES SiteUser(siteUserId),
-	FOREIGN KEY (paymentMethodId) REFERENCES PaymentMethod(paymentMethodId)
-)
+	FOREIGN KEY (hostUserId) REFERENCES General.SiteUser(siteUserId),
+	FOREIGN KEY (paymentMethodId) REFERENCES LowFrequency.PaymentMethod(paymentMethodId)
+) ON tg1_General
 
-CREATE TABLE Category (
-	categoryId INT PRIMARY KEY IDENTITY,
+CREATE TABLE LowFrequency.Category (
+	categoryId INT IDENTITY CONSTRAINT PK_Category PRIMARY KEY,
 	[name] NVARCHAR(32) NOT NULL,
 	[description] NVARCHAR(128) NOT NULL
-)
+) ON tg1_LowFrequency
 
-CREATE TABLE HousingCategory (
+CREATE TABLE General.HousingCategory (
 	housingId BIGINT NOT NULL,
 	categoryId INT NOT NULL,
 	PRIMARY KEY (housingId, categoryId),
-	FOREIGN KEY (housingId) REFERENCES Housing(housingId),
-	FOREIGN KEY (categoryId) REFERENCES Category(categoryId)
-)
+	FOREIGN KEY (housingId) REFERENCES General.Housing(housingId),
+	FOREIGN KEY (categoryId) REFERENCES LowFrequency.Category(categoryId)
+) ON tg1_General
 
-CREATE TABLE ReviewReport (
-	reportId BIGINT PRIMARY KEY IDENTITY,
+CREATE TABLE Moderation.ReviewReport (
+	reportId BIGINT IDENTITY CONSTRAINT PK_ReviewReport PRIMARY KEY,
 	adminId BIGINT,
 	hostReviewId BIGINT,
 	clientReviewId BIGINT,
 	accepted BIT,
 	[description] NVARCHAR(256) NOT NULL,
-	FOREIGN KEY (adminId) REFERENCES SiteUser(siteUserId),
-	FOREIGN KEY (hostReviewId) REFERENCES HostUserReview(hostReviewId),
-	FOREIGN KEY (clientReviewId) REFERENCES ClientUserReview(clientReviewId)
-)
+	FOREIGN KEY (adminId) REFERENCES General.SiteUser(siteUserId),
+	FOREIGN KEY (hostReviewId) REFERENCES Reviews.HostUserReview(hostReviewId),
+	FOREIGN KEY (clientReviewId) REFERENCES Reviews.ClientUserReview(clientReviewId)
+) ON tg1_Moderation
 
-CREATE TABLE AdminAction (
-	actionId BIGINT PRIMARY KEY IDENTITY,
+CREATE TABLE Moderation.AdminAction (
+	actionId BIGINT IDENTITY CONSTRAINT PK_AdminAction PRIMARY KEY,
 	adminId BIGINT NOT NULL,
 	clientReviewId BIGINT,
 	siteUserId BIGINT,
@@ -210,10 +221,20 @@ CREATE TABLE AdminAction (
 	updateOldValue NVARCHAR(512),
 	updateNewValue NVARCHAR(512),
 	actionTimestamp DATETIME NOT NULL DEFAULT GETDATE(),
-	FOREIGN KEY (adminId) REFERENCES SiteUser(siteUserId),
-	FOREIGN KEY (clientReviewId) REFERENCES ClientUserReview(clientReviewId),
-	FOREIGN KEY (siteUserId) REFERENCES SiteUser(siteUserId),
-	FOREIGN KEY (hostReviewId) REFERENCES HostUserReview(hostReviewId),
-	FOREIGN KEY (amenityId) REFERENCES Amenity(amenityId),
-	FOREIGN KEY (housingId) REFERENCES Housing(housingId)
-)
+	FOREIGN KEY (adminId) REFERENCES General.SiteUser(siteUserId),
+	FOREIGN KEY (clientReviewId) REFERENCES Reviews.ClientUserReview(clientReviewId),
+	FOREIGN KEY (siteUserId) REFERENCES General.SiteUser(siteUserId),
+	FOREIGN KEY (hostReviewId) REFERENCES Reviews.HostUserReview(hostReviewId),
+	FOREIGN KEY (amenityId) REFERENCES LowFrequency.Amenity(amenityId),
+	FOREIGN KEY (housingId) REFERENCES General.Housing(housingId)
+) ON tg1_Moderation
+
+SELECT o.[name], o.[type], i.[name], i.[index_id], f.[name] FROM sys.indexes i
+INNER JOIN sys.filegroups f
+ON i.data_space_id = f.data_space_id
+INNER JOIN sys.all_objects o
+ON i.[object_id] = o.[object_id] WHERE i.data_space_id = f.data_space_id
+AND o.type = 'U' -- User Created Tables
+GO
+
+SELECT * FROM sys.filegroups;

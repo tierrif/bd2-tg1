@@ -3,9 +3,9 @@ import sample from '../../data/airbnb-amenities-sample.json' assert { type: 'jso
 
 const records = sample.records
 
-export const enabled = true
+export const enabled = false
 
-export const tableNames = ['HousingAmenity', 'Amenity', 'AmenityIcon']
+export const tableNames = ['General.HousingAmenity', 'LowFrequency.Amenity', 'LowFrequency.AmenityIcon']
 
 const amenitiesSample = records.map(amenity => amenity.fields.amenities)
     .filter(amenity => amenity)
@@ -24,7 +24,7 @@ const total = Object.values(amenitiesSample).reduce((acc, curr) => acc + curr, 0
 
 export const multithread = true
 
-export const iterableDataStatement = 'SELECT housingId FROM Housing'
+export const iterableDataStatement = 'SELECT housingId FROM General.Housing'
 
 export const iterableDataPrimaryKey = 'housingId'
 
@@ -34,13 +34,13 @@ export const insertSinglethread = async (mssql, pool) => {
   amenityPs.input('description', mssql.NVarChar)
   amenityPs.input('iconId', mssql.Int)
 
-  await amenityPs.prepare('INSERT INTO Amenity (name, description, iconId) VALUES (@name, @description, @iconId)')
+  await amenityPs.prepare('INSERT INTO LowFrequency.Amenity (name, description, iconId) VALUES (@name, @description, @iconId)')
 
   const insertedAmenities = []
   for (const amenity in amenitiesSample) {
     const request = new mssql.Request(pool)
     request.input('url', mssql.NVarChar, '/internal/icons/' + amenity.toLowerCase() + '_icon.svg')
-    const { identity } = (await request.query(`INSERT INTO AmenityIcon (iconUrl) VALUES (@url);
+    const { identity } = (await request.query(`INSERT INTO LowFrequency.AmenityIcon (iconUrl) VALUES (@url);
       SELECT @@IDENTITY AS 'identity'`)).recordset[0]
 
     if (insertedAmenities.includes(amenity)) {
@@ -65,10 +65,10 @@ export const insert = async (mssql, pool, housingId) => {
   ps.input('amenityId', mssql.Int)
   ps.input('isPresent', mssql.Bit)
 
-  await ps.prepare(`INSERT INTO HousingAmenity (housingId, amenityId, isPresent) 
+  await ps.prepare(`INSERT INTO General.HousingAmenity (housingId, amenityId, isPresent) 
     VALUES (@housingId, @amenityId, @isPresent)`)
   const request = new mssql.Request(pool)
-  const { recordset } = await request.query('SELECT amenityId, name FROM Amenity')
+  const { recordset } = await request.query('SELECT amenityId, name FROM LowFrequency.Amenity')
   for (const { name, amenityId } of recordset) {
     const probability = amenitiesSample[name] / total * 10
     if (Math.random() < probability || (housingId === 1 && probability === 0)) {

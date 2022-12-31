@@ -2,13 +2,13 @@ import { loremIpsum } from "lorem-ipsum"
 
 export const multithread = true
 
-export const enabled = true
+export const enabled = false
 
-export const tableNames = ["HostUserReview", "ClientUserReview"]
+export const tableNames = ["Reviews.HostUserReview", "Reviews.ClientUserReview"]
 
-export const iterableDataStatement = `SELECT Reservation.reservationId, 
-  Housing.hostUserId, Reservation.clientUserId, Reservation.housingId
-    FROM Reservation WITH (NOLOCK) INNER JOIN Housing WITH (NOLOCK) ON Reservation.housingId = Housing.housingId`
+export const iterableDataStatement = `SELECT HighFrequency.Reservation.reservationId, 
+  General.Housing.hostUserId, HighFrequency.Reservation.clientUserId, HighFrequency.Reservation.housingId
+    FROM HighFrequency.Reservation WITH (NOLOCK) INNER JOIN General.Housing WITH (NOLOCK) ON HighFrequency.Reservation.housingId = General.Housing.housingId`
 
 export const insert = async (mssql, pool, reservation) => {
   // Insert into both HostUserReview and ClientUserReview.
@@ -21,7 +21,7 @@ export const insert = async (mssql, pool, reservation) => {
   psHost.input('ratingValue', mssql.TinyInt)
   psHost.input('visible', mssql.Bit)
 
-  await psHost.prepare(`SET DEADLOCK_PRIORITY LOW; INSERT INTO HostUserReview (housingId, hostUserId, authorClientId, title, description, ratingValue, visible)
+  await psHost.prepare(`SET DEADLOCK_PRIORITY LOW; INSERT INTO Reviews.HostUserReview (housingId, hostUserId, authorClientId, title, description, ratingValue, visible)
     VALUES (@housingId, @hostUserId, @authorClientId, @title, @description, @ratingValue, @visible) OPTION (LOOP JOIN)`)
 
   const psClient = new mssql.PreparedStatement(pool)
@@ -32,7 +32,7 @@ export const insert = async (mssql, pool, reservation) => {
   psClient.input('ratingValue', mssql.TinyInt)
   psClient.input('visible', mssql.Bit)
 
-  await psClient.prepare(`SET DEADLOCK_PRIORITY LOW; INSERT INTO ClientUserReview (authorHostId, clientUserId, title, description, ratingValue, visible)
+  await psClient.prepare(`SET DEADLOCK_PRIORITY LOW; INSERT INTO Reviews.ClientUserReview (authorHostId, clientUserId, title, description, ratingValue, visible)
     VALUES (@authorHostId, @clientUserId, @title, @description, @ratingValue, @visible) OPTION (LOOP JOIN)`)
 
   const title = loremIpsum({ count: 1, units: 'sentences', sentenceLowerBound: 2, sentenceUpperBound: 5 })

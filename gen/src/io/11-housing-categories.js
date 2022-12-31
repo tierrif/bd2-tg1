@@ -4,11 +4,11 @@ export const multithread = true
 
 export const enabled = true
 
-export const iterableDataStatement = `SELECT housingId FROM Housing`
+export const iterableDataStatement = `SELECT housingId FROM General.Housing`
 
 export const iterableDataPrimaryKey = 'housingId'
 
-export const tableNames = ['HousingCategory', 'Category']
+export const tableNames = ['General.HousingCategory', 'LowFrequency.Category']
 
 const categories = [
   'Private Rooms',
@@ -25,7 +25,7 @@ export const insertSinglethread = async (mssql, pool) => {
   const ps = new mssql.PreparedStatement(pool)
   ps.input('name', mssql.NVarChar(32))
   ps.input('description', mssql.NVarChar(128))
-  await ps.prepare('INSERT INTO Category ([name], [description]) VALUES (@name, @description)')
+  await ps.prepare('INSERT INTO LowFrequency.Category ([name], [description]) VALUES (@name, @description)')
 
   for (const category of categories) {
     await ps.execute({
@@ -41,14 +41,14 @@ export const insert = async (mssql, pool, housingId) => {
   const ps = new mssql.PreparedStatement(pool)
   ps.input('housingId', mssql.BigInt)
   ps.input('categoryId', mssql.Int)
-  await ps.prepare(`INSERT INTO HousingCategory (housingId, categoryId)
+  await ps.prepare(`INSERT INTO General.HousingCategory (housingId, categoryId)
     VALUES (@housingId, @categoryId)`)
 
   // Máximo de 3 categorias por alojamento.
   const maxLength = Math.floor(Math.random() * 3) + 1
   const insertedIds = []
   for (let i = 0; i < maxLength; i++) {
-    const { categoryId } = (await pool.request().query(`SELECT TOP 1 categoryId FROM Category ORDER BY NEWID()`)).recordset[0]
+    const { categoryId } = (await pool.request().query(`SELECT TOP 1 categoryId FROM LowFrequency.Category ORDER BY NEWID()`)).recordset[0]
     if (insertedIds.includes(categoryId)) {
       --i
       continue

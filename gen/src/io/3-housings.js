@@ -2,19 +2,19 @@ import { genAddress } from './common/address-gen.js'
 
 export const multithread = true
 
-export const enabled = true
+export const enabled = false
 
 export const amountOfDataToInsert = 10000
 
-export const tableNames = ['Housing']
+export const tableNames = ['General.Housing']
 
 export const insert = async (mssql, pool) => {
   const request = new mssql.Request(pool)
 
-  const { siteUserId: hostUserId } = (await request.query('SELECT TOP 1 siteUserId FROM SiteUser WHERE isHost = 1 ORDER BY NEWID()')).recordset[0]
+  const { siteUserId: hostUserId } = (await request.query('SELECT TOP 1 siteUserId FROM General.SiteUser WHERE isHost = 1 ORDER BY NEWID()')).recordset[0]
   const { locationAddrLine1, locationAddrLine2, cityId, stateId, locationPostalCode } = await genAddress(mssql, request)
   request.input('cityId', mssql.Int, cityId)
-  const { name: cityName } = (await request.query('SELECT name FROM City WHERE cityId = @cityId', { cityId })).recordset[0]
+  const { name: cityName } = (await request.query('SELECT name FROM Locations.City WHERE cityId = @cityId', { cityId })).recordset[0]
   const name = randomName(cityName)
   const defaultCost = randomPrice()
 
@@ -28,7 +28,7 @@ export const insert = async (mssql, pool) => {
   ps.input('locationPostalCode', mssql.NVarChar)
   ps.input('cityId', mssql.Int)
 
-  await ps.prepare(`INSERT INTO Housing (hostUserId, name, defaultCost, locationAddrLine1, locationAddrLine2, cityId, stateId, locationPostalCode)
+  await ps.prepare(`INSERT INTO General.Housing (hostUserId, name, defaultCost, locationAddrLine1, locationAddrLine2, cityId, stateId, locationPostalCode)
     VALUES (@hostUserId, @name, @defaultCost, @locationAddrLine1, @locationAddrLine2, @cityId, @stateId, @locationPostalCode)`)
   await ps.execute({ hostUserId, name, defaultCost, locationAddrLine1, locationAddrLine2, cityId, stateId, locationPostalCode })
   await ps.unprepare()

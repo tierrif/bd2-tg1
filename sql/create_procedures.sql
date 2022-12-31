@@ -4,15 +4,15 @@ GO
 CREATE PROCEDURE verifyHostUser
 	@hostUserId BIGINT
 AS BEGIN
-	IF NOT EXISTS (SELECT * FROM SiteUser WHERE siteUserId = @hostUserId) BEGIN
+	IF NOT EXISTS (SELECT * FROM General.SiteUser WHERE siteUserId = @hostUserId) BEGIN
 		RAISERROR ('This user does not exist.', 16, 1)
 		RETURN
-	END ELSE IF (SELECT isHost FROM SiteUser WHERE siteUserId = @hostUserId) = 0 BEGIN
+	END ELSE IF (SELECT isHost FROM General.SiteUser WHERE siteUserId = @hostUserId) = 0 BEGIN
 		RAISERROR ('Verification only applies to host users - the selected user is not a host.', 16, 1)
 		RETURN
 	END
 
-	UPDATE SiteUser SET identityVerified = 1 WHERE siteUserId = @hostUserId
+	UPDATE General.SiteUser SET identityVerified = 1 WHERE siteUserId = @hostUserId
 END
 GO
 
@@ -21,7 +21,7 @@ CREATE PROCEDURE findRoomForGuestAmount
 	@amount TINYINT,
 	@roomId BIGINT OUT
 AS BEGIN
-	IF NOT EXISTS (SELECT * FROM Housing WHERE housingId = @housingId) BEGIN
+	IF NOT EXISTS (SELECT * FROM General.Housing WHERE housingId = @housingId) BEGIN
 		RAISERROR ('This housing does not exist.', 16, 1)
 		RETURN
 	END
@@ -49,13 +49,13 @@ AS BEGIN
 	DECLARE @toReturn MONEY = 0
 	-- Obter preço por noite com base na tabela DateIntervalCost, iterando por datas.
 	WHILE @startDate <= @endDate BEGIN
-		IF EXISTS (SELECT * FROM DateIntervalCost WHERE @startDate
+		IF EXISTS (SELECT * FROM HighFrequency.DateIntervalCost WHERE @startDate
 				BETWEEN dateFrom AND dateTo AND housingId = @housingId) BEGIN
 			-- Somar ao preço final o preço da data atual.
-			SELECT @toReturn = @toReturn + MAX(costPerNight) FROM DateIntervalCost 
+			SELECT @toReturn = @toReturn + MAX(costPerNight) FROM HighFrequency.DateIntervalCost 
 				WHERE @startDate BETWEEN dateFrom AND dateTo AND housingId = @housingId
 		END ELSE BEGIN
-			SELECT @toReturn = @toReturn + defaultCost FROM Housing WHERE housingId = @housingId
+			SELECT @toReturn = @toReturn + defaultCost FROM General.Housing WHERE housingId = @housingId
 		END
 		SET @startDate = DATEADD(DAY, 1, @startDate)
 	END
@@ -69,10 +69,11 @@ CREATE PROCEDURE maxGuestCount
 	@housingId BIGINT,
 	@maxGuestCount TINYINT OUT
 AS BEGIN
-	IF NOT EXISTS (SELECT * FROM Housing WHERE housingId = @housingId) BEGIN
+	IF NOT EXISTS (SELECT * FROM General.Housing WHERE housingId = @housingId) BEGIN
 		RAISERROR ('This housing does not exist.', 16, 1)
 		RETURN
 	END
 
-	SELECT @maxGuestCount = MAX(maxGuestCount) FROM Room WHERE housingId = @housingId
+	SELECT @maxGuestCount = MAX(maxGuestCount) FROM General.Room WHERE housingId = @housingId
 END
+GO

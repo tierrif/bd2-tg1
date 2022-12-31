@@ -1,15 +1,15 @@
 export const multithread = true
 
-export const enabled = true
+export const enabled = false
 
 export const amountOfDataToInsert = 5000
 
-export const tableNames = ['DateIntervalCost']
+export const tableNames = ['HighFrequency.DateIntervalCost']
 
 export const insert = async (mssql, pool) => {
   const request = new mssql.Request(pool)
 
-  const housing = (await request.query('SELECT TOP 1 housingId, defaultCost FROM Housing ORDER BY NEWID()')).recordset[0]
+  const housing = (await request.query('SELECT TOP 1 housingId, defaultCost FROM General.Housing ORDER BY NEWID()')).recordset[0]
   const housingId = parseInt(housing.housingId)
   request.input('housingId', mssql.Int, housingId)
 
@@ -23,7 +23,7 @@ export const insert = async (mssql, pool) => {
   request.input('dateTo', mssql.DateTime, dateTo)
   request.input('costPerNight', mssql.Int, costPerNight)
 
-  await request.query(`INSERT INTO DateIntervalCost (housingId, dateFrom, dateTo, costPerNight)
+  await request.query(`INSERT INTO HighFrequency.DateIntervalCost (housingId, dateFrom, dateTo, costPerNight)
     VALUES (@housingId, @dateFrom, @dateTo, @costPerNight)`)
 }
 

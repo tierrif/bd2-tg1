@@ -2,11 +2,11 @@ export const multithread = true
 
 export const enabled = true
 
-export const iterableDataStatement = `SELECT siteUserId FROM SiteUser WHERE isHost = 1`
+export const iterableDataStatement = `SELECT siteUserId FROM General.SiteUser WHERE isHost = 1`
 
 export const iterableDataPrimaryKey = 'siteUserId'
 
-export const tableNames = ['HostAcceptedPaymentMethod', 'PaymentMethod']
+export const tableNames = ['General.HostAcceptedPaymentMethod', 'LowFrequency.PaymentMethod']
 
 const paymentMethods = [
   {
@@ -31,7 +31,7 @@ export const insertSinglethread = async (mssql, pool) => {
   const ps = new mssql.PreparedStatement(pool)
   ps.input('name', mssql.NVarChar(32))
   ps.input('description', mssql.NVarChar(128))
-  await ps.prepare('INSERT INTO PaymentMethod ([name], [description]) VALUES (@name, @description)')
+  await ps.prepare('INSERT INTO LowFrequency.PaymentMethod ([name], [description]) VALUES (@name, @description)')
 
   for (const paymentMethod of paymentMethods) {
     await ps.execute(paymentMethod)
@@ -44,7 +44,7 @@ export const insert = async (mssql, pool, hostUserId) => {
   const ps = new mssql.PreparedStatement(pool)
   ps.input('hostUserId', mssql.BigInt)
   ps.input('paymentMethodId', mssql.TinyInt)
-  await ps.prepare(`INSERT INTO HostAcceptedPaymentMethod (hostUserId, paymentMethodId)
+  await ps.prepare(`INSERT INTO General.HostAcceptedPaymentMethod (hostUserId, paymentMethodId)
     VALUES (@hostUserId, @paymentMethodId)`)
 
   let insertedOnceAtLeast = false
@@ -52,7 +52,7 @@ export const insert = async (mssql, pool, hostUserId) => {
     const request = new mssql.Request(pool)
     request.input('name', mssql.NVarChar(32), paymentMethod.name)
     const { paymentMethodId } = (await request.query(
-      'SELECT paymentMethodId FROM PaymentMethod WHERE [name] = @name')).recordset[0]
+      'SELECT paymentMethodId FROM LowFrequency.PaymentMethod WHERE [name] = @name')).recordset[0]
 
     if (Math.random() < 0.5) continue
 
@@ -69,7 +69,7 @@ export const insert = async (mssql, pool, hostUserId) => {
     const request = new mssql.Request(pool)
     request.input('name', mssql.NVarChar(32), paymentMethod.name)
     const { paymentMethodId } = (await request.query(
-      'SELECT paymentMethodId FROM PaymentMethod WHERE [name] = @name')).recordset[0]
+      'SELECT paymentMethodId FROM LowFrequency.PaymentMethod WHERE [name] = @name')).recordset[0]
 
     await ps.execute({
       hostUserId,

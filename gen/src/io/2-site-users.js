@@ -8,11 +8,11 @@ const length = surnames.length
 
 export const multithread = true
 
-export const enabled = true
+export const enabled = false
 
 export const amountOfDataToInsert = 10000
 
-export const tableNames = ['SiteUser']
+export const tableNames = ['General.SiteUser']
 
 export const insert = async (mssql, pool) => {
   const request = new mssql.Request(pool)
@@ -62,7 +62,7 @@ export const insert = async (mssql, pool) => {
 
 
   await ps.prepare(`
-  INSERT INTO SiteUser (name, profilePictureUrl, isHost, 
+  INSERT INTO General.SiteUser (name, profilePictureUrl, isHost, 
     isAdmin, email, identityVerified, mobile, 
     password, salt, locationAddrLine1, 
     locationAddrLine2, cityId, stateId, 
