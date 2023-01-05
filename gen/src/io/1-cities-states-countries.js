@@ -8,7 +8,7 @@ export const enabled = false
 
 export const tableNames = ['Locations.City', 'Locations.State', 'Locations.Country']
 
-export const insert = async (mssql, pool, j, total, parentPort) => {
+export const insert = async (mssql, pool, j, total) => {
   let i = 0
   for (const city of iterableJson) {
     const request = new mssql.Request(pool)
