@@ -3,7 +3,7 @@ import sample from '../../data/airbnb-amenities-sample.json' assert { type: 'jso
 
 const records = sample.records
 
-export const enabled = false
+export const enabled = true
 
 export const tableNames = ['General.HousingAmenity', 'LowFrequency.Amenity', 'LowFrequency.AmenityIcon']
 

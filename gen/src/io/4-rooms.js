@@ -1,6 +1,6 @@
 export const multithread = true
 
-export const enabled = false
+export const enabled = true
   
 export const iterableDataStatement = 'SELECT housingId FROM General.Housing'
 
@@ -18,7 +18,7 @@ export const insert = async (mssql, pool, housingId) => {
 
   await ps.prepare('INSERT INTO General.Room (housingId, name, maxGuestCount) VALUES (@housingId, @name, @maxGuestCount)')
   for (let i = 0; i < maxLength; i++) {
-    // Create a room.
+    // Criar um quarto.
     const name = 'Room ' + ['A', 'B', 'C'][i]
     const maxGuestCount = Math.floor(Math.random() * 3) + 1
     

@@ -4,7 +4,7 @@ const iterableJson = json.sort((a, b) => a.country.localeCompare(b.country))
 
 export const multithread = false
 
-export const enabled = false
+export const enabled = true
 
 export const tableNames = ['Locations.City', 'Locations.State', 'Locations.Country']
 

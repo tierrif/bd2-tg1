@@ -27,7 +27,7 @@ AS BEGIN
 	END
 
 	-- Obter o quarto com a menor capacidade que seja maior ou igual à quantidade de hóspedes.
-	SELECT TOP 1 @roomId = roomId FROM Room WHERE housingId = @housingId AND maxGuestCount >= @amount
+	SELECT TOP 1 @roomId = roomId FROM General.Room WHERE housingId = @housingId AND maxGuestCount >= @amount
 		ORDER BY maxGuestCount ASC
 END
 GO
@@ -77,3 +77,4 @@ AS BEGIN
 	SELECT @maxGuestCount = MAX(maxGuestCount) FROM General.Room WHERE housingId = @housingId
 END
 GO
+

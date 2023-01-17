@@ -1,7 +1,7 @@
 USE tg1
 GO
 
-CREATE TRIGGER updateRating ON Reviews.HostUserReview AFTER INSERT, UPDATE AS BEGIN
+CREATE TRIGGER updateRating ON Reviews.HostUserReview AFTER INSERT, UPDATE, DELETE AS BEGIN
 	UPDATE General.Housing SET ratingAvg = (SELECT AVG(CAST(ratingValue as FLOAT)) from Reviews.HostUserReview)
 		WHERE General.Housing.housingId = (SELECT housingId FROM inserted)
 END
@@ -118,3 +118,4 @@ CREATE TRIGGER autoPriceSet ON HighFrequency.Reservation AFTER INSERT AS BEGIN
 	UPDATE Reservation SET totalCost = @totalCost
 		WHERE reservationId = (SELECT reservationId FROM inserted)
 END
+

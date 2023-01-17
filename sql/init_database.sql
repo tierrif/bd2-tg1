@@ -1,16 +1,3 @@
-DECLARE @DatabaseName nvarchar(50)
-SET @DatabaseName = N'tg1'
-
-DECLARE @SQL varchar(max)
-
-SELECT @SQL = COALESCE(@SQL,'') + 'Kill ' + Convert(varchar, SPId) + ';'
-FROM MASTER..SysProcesses
-WHERE DBId = DB_ID(@DatabaseName) AND SPId <> @@SPId
-
-EXEC(@SQL)
-
-DROP DATABASE tg1
-
 CREATE DATABASE tg1
 ON PRIMARY (
   NAME = 'tg1_Primary',
@@ -127,10 +114,16 @@ ON PRIMARY (
   MAXSIZE = 50MB,
   FILEGROWTH = 10%
 ) LOG ON (
-  NAME = 'tg1_Logs',
-  FILENAME = 'C:\tg1-bd\tg1_Logs.ldf',
+  NAME = 'tg1_Logs_1',
+  FILENAME = 'C:\tg1-bd\tg1_Logs_1.ldf',
   SIZE = 1MB,
-  MAXSIZE = 200MB,
+  MAXSIZE = 5GB,
+  FILEGROWTH = 10%
+), (
+  NAME = 'tg1_Logs_2',
+  FILENAME = 'C:\tg1-bd\tg1_Logs_2.ldf',
+  SIZE = 1MB,
+  MAXSIZE = 5GB,
   FILEGROWTH = 10%
 );
 GO

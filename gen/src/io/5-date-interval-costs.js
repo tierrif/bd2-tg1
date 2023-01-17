@@ -1,6 +1,6 @@
 export const multithread = true
 
-export const enabled = false
+export const enabled = true
 
 export const amountOfDataToInsert = 5000
 

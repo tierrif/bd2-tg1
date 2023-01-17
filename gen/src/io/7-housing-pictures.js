@@ -2,7 +2,7 @@ import { loremIpsum } from 'lorem-ipsum'
 
 export const multithread = true
 
-export const enabled = false
+export const enabled = true
 
 export const iterableDataStatement = 'SELECT housingId FROM General.Housing'
 

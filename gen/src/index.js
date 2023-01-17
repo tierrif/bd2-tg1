@@ -31,6 +31,7 @@ mssql.connect(dbConfig, async (err) => {
       for (const r of reg.reverse()) {
         if (r.enabled) {
           for (const tableName of r.tableNames) {
+            console.log(tableName)
             const request = new mssql.Request()
             request.input('tableName', mssql.VarChar, tableName)
             await request.query(`
